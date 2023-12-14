@@ -42,5 +42,10 @@ export default class SortView {
     }
     return this.element;
   }
+
+  removeElement() {
+    this.element = null;
+  }
 }
+
 
