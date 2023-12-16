@@ -6,3 +6,5 @@ const tripPresenter = new TripPresenter ({container: siteHeaderElement});
 
 
 tripPresenter.init();
+Math.floor(0.04);
+console.log(Math.floor(0.04))
