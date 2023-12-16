@@ -11,7 +11,6 @@ const POINTS_QUANTITY = 3;
 const infoTripElement = document.querySelector('.trip-main');
 const filterElement = document.querySelector('.trip-controls__filters');
 
-
 export default class TripPresenter {
   sortComponent = new SortView();
   editListComponent = new EditListView();
