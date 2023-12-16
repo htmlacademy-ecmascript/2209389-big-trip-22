@@ -453,8 +453,8 @@ class PointView {
   getElement() {
     if (!this.element) {
       this.element = (0,_render_js__WEBPACK_IMPORTED_MODULE_0__.createElement)(this.getTemplate());
-      return this.element;
     }
+    return this.element;
   }
   removeElement() {
     this.element = null;
@@ -596,4 +596,4 @@ tripPresenter.init();
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle.5742035c5b260bb5a644.js.map
+//# sourceMappingURL=bundle.c1d1f52e89d5136b9539.js.map
