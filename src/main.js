@@ -7,5 +7,5 @@ const siteHeaderElement = siteMainElement.querySelector('.trip-events');
 const pointModel = new PointModel();
 pointModel.init();
 
-const tripPresenter = new TripPresenter ({container: siteHeaderElement, pointModel: pointModel});
+const tripPresenter = new TripPresenter({container: siteHeaderElement, pointModel: pointModel});
 tripPresenter.init();
