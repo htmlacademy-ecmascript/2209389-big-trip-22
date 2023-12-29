@@ -8,34 +8,42 @@ import { RenderPosition } from '../render.js';
 import { getDefaultPoint } from '../mock/const-mock.js';
 import { render } from '../framework/render.js';
 
-
-const infoTripElement = document.querySelector('.trip-main');
-const filterElement = document.querySelector('.trip-controls__filters');
-
 export default class TripPresenter {
-  sortComponent = new SortView();
-  editListComponent = new EditListView();
+  #sortComponent = new SortView();
+  #editListComponent = new EditListView();
+  #container = null;
+  #pointModel = null;
+  #infoTripElement = null;
+  #filterElement = null;
 
-  constructor ({ container, pointModel }) {
-    this.container = container;
-    this.pointModel = pointModel;
+  constructor ({ container, pointModel, infoTripElement, filterElement }) {
+    this.#container = container;
+    this.#pointModel = pointModel;
+    this.#infoTripElement = infoTripElement;
+    this.#filterElement = filterElement;
   }
 
   init () {
-    const points = this.pointModel.getPoints();
-    const destinations = this.pointModel.getDestinations();
-    const offers = this.pointModel.getOffers();
+    const points = this.#pointModel.points;
+    const destinations = this.#pointModel.destinations;
+    const offers = this.#pointModel.offers;
 
-
-    render(new InfoTripView(), infoTripElement, RenderPosition.AFTERBEGIN);
-    render(this.sortComponent, this.container);
-    render(this.editListComponent, this.container);
-    render(new FilterView(), filterElement);
-    render(new PointEditView(getDefaultPoint(), destinations, offers), this.editListComponent.element);
-    render(new PointEditView(points[1], destinations, offers), this.editListComponent.element);
+    render(new InfoTripView(), this.#infoTripElement, RenderPosition.AFTERBEGIN);
+    render(this.#sortComponent, this.#container);
+    render(this.#editListComponent, this.#container);
+    render(new FilterView(), this.#filterElement);
+    //render(new PointEditView(getDefaultPoint(), destinations, offers), this.#editListComponent.element);
+    //render(new PointEditView(points[1], destinations, offers), this.#editListComponent.element);
 
     for (const point of points) {
-      render (new PointView(point, destinations, offers), this.editListComponent.element);
+      this.#renderPoint(point, destinations, offers);
     }
+  }
+
+  #renderPoint (point, destinations, offers) {
+
+    const pointComponent = new PointView(point, destinations, offers);
+
+    render (pointComponent, this.#editListComponent.element);
   }
 }
