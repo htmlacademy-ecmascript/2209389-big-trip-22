@@ -7,7 +7,7 @@ const createPointEditTemplate = (point, destinations, offers) => {
   const pointDestination = destinations.find((dest) => dest.id === point.destination);
   const typeOffers = offers.find((off) => off.type === point.type).offers;
   const pointOffers = typeOffers.filter((typeOffer) => point.offers.includes(typeOffer.id));
-  const {dateFrom, dateTo, basePrice, type} = point;
+  const {/*dateFrom, dateTo,*/ basePrice, type} = point;
   const {name, description, pictures} = pointDestination || {};
   const pointId = point.id || 0;
 
@@ -117,15 +117,18 @@ export default class PointEditView extends AbstractView {
   #destinations = null;
   #offers = null;
   #handleFormSubmit = null;
+  #handleEditClick = null;
 
-  constructor ({point, destinations, offers, onEditFormSubmit}) {
+  constructor ({point, destinations, offers, onEditFormSubmit, onRollupButtonClick}) {
     super();
     this.#point = point;
     this.#destinations = destinations;
     this.#offers = offers;
 
     this.#handleFormSubmit = onEditFormSubmit;
+    this.#handleEditClick = onRollupButtonClick;
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   }
 
   get template() {
@@ -135,6 +138,11 @@ export default class PointEditView extends AbstractView {
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
     this.#handleFormSubmit();
+  };
+
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
   };
 
 }

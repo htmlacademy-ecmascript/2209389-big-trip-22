@@ -5,7 +5,6 @@ import PointView from '../view/point-view.js';
 import SortView from '../view/sort-veiw.js';
 import InfoTripView from '../view/info-trip-view.js';
 import { RenderPosition } from '../render.js';
-import { getDefaultPoint } from '../mock/const-mock.js';
 import { render, replace } from '../framework/render.js';
 
 export default class TripPresenter {
@@ -49,7 +48,6 @@ export default class TripPresenter {
       }
     };
 
-    //const pointComponent = new PointView(point, destinations, offers);
     const pointComponent = new PointView ({
       point, destinations, offers,
       onRollupButtonClick: () => {
@@ -65,6 +63,9 @@ export default class TripPresenter {
       onEditFormSubmit: () => {
         replaceFormToPoint();
         document.removeEventListener('keydown', escKeyDownHandler);
+      },
+      onRollupButtonClick: () => {
+        replaceFormToPoint();
       }
     });
 
