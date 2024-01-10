@@ -1,6 +1,3 @@
-import { getRandomArrayElement } from './utils-mock.js';
-import { TRIP_POINT_TYPES } from '../const.js';
-
 const points = [
   {
     id: '1',

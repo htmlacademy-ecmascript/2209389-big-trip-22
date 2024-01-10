@@ -6,6 +6,7 @@ import SortView from '../view/sort-veiw.js';
 import InfoTripView from '../view/info-trip-view.js';
 import { RenderPosition } from '../render.js';
 import { render, replace } from '../framework/render.js';
+import EmptyListView from '../view/empty-list-view.js';
 
 export default class TripPresenter {
   #sortComponent = new SortView();
@@ -71,6 +72,12 @@ export default class TripPresenter {
     const points = this.#pointModel.points;
     const destinations = this.#pointModel.destinations;
     const offers = this.#pointModel.offers;
+
+    if (points.length === 0) {
+      render (new EmptyListView(), this.#container);
+      return;
+    }
+
     render(new InfoTripView(), this.#infoTripElement, RenderPosition.AFTERBEGIN);
     render(this.#sortComponent, this.#container);
     render(this.#editListComponent, this.#container);
