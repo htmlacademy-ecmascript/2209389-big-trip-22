@@ -23,20 +23,7 @@ export default class TripPresenter {
   }
 
   init () {
-    const points = this.#pointModel.points;
-    const destinations = this.#pointModel.destinations;
-    const offers = this.#pointModel.offers;
-
-    render(new InfoTripView(), this.#infoTripElement, RenderPosition.AFTERBEGIN);
-    render(this.#sortComponent, this.#container);
-    render(this.#editListComponent, this.#container);
-    render(new FilterView(), this.#filterElement);
-    //render(new PointEditView(getDefaultPoint(), destinations, offers), this.#editListComponent.element);
-    //render(new PointEditView(points[1], destinations, offers), this.#editListComponent.element);
-
-    for (const point of points) {
-      this.#renderPoint(point, destinations, offers);
-    }
+    this.#renderTripEvents();
   }
 
   #renderPoint (point, destinations, offers) {
@@ -78,5 +65,19 @@ export default class TripPresenter {
     }
 
     render (pointComponent, this.#editListComponent.element);
+  }
+
+  #renderTripEvents() {
+    const points = this.#pointModel.points;
+    const destinations = this.#pointModel.destinations;
+    const offers = this.#pointModel.offers;
+    render(new InfoTripView(), this.#infoTripElement, RenderPosition.AFTERBEGIN);
+    render(this.#sortComponent, this.#container);
+    render(this.#editListComponent, this.#container);
+    render(new FilterView(), this.#filterElement);
+
+    for (const point of points) {
+      this.#renderPoint(point, destinations, offers);
+    }
   }
 }
