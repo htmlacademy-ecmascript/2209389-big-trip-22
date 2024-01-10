@@ -1,7 +1,9 @@
-import { createElement } from '../render.js';
+import { DATE_FORMAT } from '../const.js';
+import AbstractView from '../framework/view/abstract-view.js';
+import { humanizeDate } from '../utils.js';
 
 const createPointTemplate = (point, destinations, offers) => {
-  const { basePrice, isFavorite, /*dateFrom, dateTo,*/ type } = point;
+  const { basePrice, isFavorite, dateFrom, dateTo, type } = point;
   const typeOffers = offers.find((off) => off.type === point.type).offers;
   const pointOffers = typeOffers.filter((typeOffer) => point.offers.includes(typeOffer.id));
   const pointDestination = destinations.find((dest) => dest.id === point.destination);
@@ -10,18 +12,18 @@ const createPointTemplate = (point, destinations, offers) => {
   return `
   <li class="trip-events__item">
   <div class="event">
-    <time class="event__date" datetime="2019-03-18">MAR 18</time>
+    <time class="event__date" datetime=${dateFrom}>${humanizeDate(dateFrom, DATE_FORMAT)}</time>
     <div class="event__type">
-      <img class="event__type-icon" width="42" height="42" src="img/icons/taxi.png" alt="Event type icon">
+      <img class="event__type-icon" width="42" height="42" src="img/icons/${type.toLowerCase()}.png" alt="Event type icon">
     </div>
     <h3 class="event__title">${type} ${pointDestination.name}</h3>
     <div class="event__schedule">
       <p class="event__time">
-        <time class="event__start-time" datetime="2019-03-18T10:30">10:30</time>
+        <time class="event__start-time" datetime=${dateFrom}>${humanizeDate(dateFrom, DATE_FORMAT)}</time>
         &mdash;
-        <time class="event__end-time" datetime="2019-03-18T11:00">11:00</time>
+        <time class="event__end-time" datetime=${dateTo}>${humanizeDate(dateTo, DATE_FORMAT)}</time>
       </p>
-      <p class="event__duration">30M</p>
+      <p class="event__duration">1000000M</p>
     </div>
     <p class="event__price">
       &euro;&nbsp;<span class="event__price-value">${basePrice}</span>
@@ -50,25 +52,28 @@ const createPointTemplate = (point, destinations, offers) => {
 </li>`;
 };
 
-export default class PointView {
-  constructor (point, destinations, offers) {
-    this.point = point;
-    this.destinations = destinations;
-    this.offers = offers;
+export default class PointView extends AbstractView {
+  #point = null;
+  #destinations = null;
+  #offers = null;
+  #handleEditClick = null;
+
+  constructor ({point, destinations, offers, onRollupButtonClick}) {
+    super();
+    this.#point = point;
+    this.#destinations = destinations;
+    this.#offers = offers;
+    this.#handleEditClick = onRollupButtonClick;
+
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
   }
 
-  getTemplate() {
-    return createPointTemplate(this.point, this.destinations, this.offers);
+  get template() {
+    return createPointTemplate(this.#point, this.#destinations, this.#offers);
   }
 
-  getElement() {
-    if (!this.element) {
-      this.element = createElement(this.getTemplate());
-    }
-    return this.element;
-  }
-
-  removeElement () {
-    this.element = null;
-  }
+  #editClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleEditClick();
+  };
 }
