@@ -6,7 +6,7 @@ import SortView from '../view/sort-veiw.js';
 import InfoTripView from '../view/info-trip-view.js';
 import { RenderPosition } from '../render.js';
 import { getDefaultPoint } from '../mock/const-mock.js';
-import { render } from '../framework/render.js';
+import { render, replace } from '../framework/render.js';
 
 export default class TripPresenter {
   #sortComponent = new SortView();
@@ -41,8 +41,40 @@ export default class TripPresenter {
   }
 
   #renderPoint (point, destinations, offers) {
+    const escKeyDownHandler = (evt) => {
+      if (evt.key === 'Escape') {
+        evt.preventDefault();
+        replaceFormToPoint();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
+    };
 
-    const pointComponent = new PointView(point, destinations, offers);
+    //const pointComponent = new PointView(point, destinations, offers);
+    const pointComponent = new PointView ({
+      point, destinations, offers,
+      onRollupButtonClick: () => {
+        replacePointToForm();
+        document.addEventListener('keydown', escKeyDownHandler);
+      }
+    });
+
+    const pointEditComponent = new PointEditView ({
+      point,
+      destinations,
+      offers,
+      onEditFormSubmit: () => {
+        replaceFormToPoint();
+        document.removeEventListener('keydown', escKeyDownHandler);
+      }
+    });
+
+    function replacePointToForm() {
+      replace(pointEditComponent, pointComponent);
+    }
+
+    function replaceFormToPoint() {
+      replace(pointComponent, pointEditComponent);
+    }
 
     render (pointComponent, this.#editListComponent.element);
   }
