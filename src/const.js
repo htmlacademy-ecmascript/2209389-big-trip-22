@@ -1,6 +1,13 @@
 const TRIP_POINT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
-const DATE_FORMAT = 'D MMMM';
-//TODO типы с маленькой буквы
 
-export { TRIP_POINT_TYPES, DATE_FORMAT };
+const DateFormat = {
+  MONTH_DAY: 'MMM D',
+  HOURS_MINUTES: 'HH:mm',
+  DAYS: 'DD',
+  HOURS: 'HH',
+  MINUTES: 'mm',
+  YEAR_MONTH_DAY: 'DD/MM/YY HH:mm',
+};
+
+export { TRIP_POINT_TYPES, DateFormat };
 

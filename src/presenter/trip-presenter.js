@@ -74,7 +74,7 @@ export default class TripPresenter {
     const offers = this.#pointModel.offers;
 
     if (points.length === 0) {
-      render (new EmptyListView(), this.#container);
+      render (new EmptyListView(), this.#container, RenderPosition.AFTERBEGIN);
       return;
     }
 

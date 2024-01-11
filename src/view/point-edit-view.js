@@ -1,5 +1,8 @@
 import AbstractView from '../framework/view/abstract-view.js';
 import { TRIP_POINT_TYPES } from '../const.js';
+import { humanizeDate } from '../utils.js';
+import { DateFormat } from '../const.js';
+
 const upFirstLetter = (word) => `${word[0].toUpperCase()}${word.slice(1)}`;
 const formatOfferTitle = (title) => title.split(' ').join(' ');
 
@@ -7,7 +10,7 @@ const createPointEditTemplate = (point, destinations, offers) => {
   const pointDestination = destinations.find((dest) => dest.id === point.destination);
   const typeOffers = offers.find((off) => off.type === point.type).offers;
   const pointOffers = typeOffers.filter((typeOffer) => point.offers.includes(typeOffer.id));
-  const {/*dateFrom, dateTo,*/ basePrice, type} = point;
+  const {dateFrom, dateTo, basePrice, type} = point;
   const {name, description, pictures} = pointDestination || {};
   const pointId = point.id || 0;
 
@@ -49,10 +52,10 @@ const createPointEditTemplate = (point, destinations, offers) => {
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-${pointId}">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-${pointId}" type="text" name="event-start-time" value="18/03/19 12:25">
+        <input class="event__input  event__input--time" id="event-start-time-${pointId}" type="text" name="event-start-time" value="${humanizeDate(dateFrom, DateFormat.YEAR_MONTH_DAY)}">
         &mdash;
         <label class="visually-hidden" for="event-end-time-${pointId}">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-${pointId}" type="text" name="event-end-time" value="18/03/19 13:35">
+        <input class="event__input  event__input--time" id="event-end-time-${pointId}" type="text" name="event-end-time" value="${humanizeDate(dateTo, DateFormat.YEAR_MONTH_DAY)}">
       </div>
 
       <div class="event__field-group  event__field-group--price">
