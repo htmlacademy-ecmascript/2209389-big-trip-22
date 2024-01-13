@@ -7,6 +7,7 @@ import InfoTripView from '../view/info-trip-view.js';
 import { RenderPosition } from '../render.js';
 import { render, replace } from '../framework/render.js';
 import EmptyListView from '../view/empty-list-view.js';
+import { generateFilter } from '../mock/filter-mock.js';
 
 export default class TripPresenter {
   #sortComponent = new SortView();
@@ -73,6 +74,8 @@ export default class TripPresenter {
     const destinations = this.#pointModel.destinations;
     const offers = this.#pointModel.offers;
 
+    const filters = generateFilter(points);
+
     if (points.length === 0) {
       render (new EmptyListView(), this.#container, RenderPosition.AFTERBEGIN);
       return;
@@ -81,7 +84,7 @@ export default class TripPresenter {
     render(new InfoTripView(), this.#infoTripElement, RenderPosition.AFTERBEGIN);
     render(this.#sortComponent, this.#container);
     render(this.#editListComponent, this.#container);
-    render(new FilterView(), this.#filterElement);
+    render(new FilterView({filters}), this.#filterElement);
 
     for (const point of points) {
       this.#renderPoint(point, destinations, offers);

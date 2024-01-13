@@ -9,5 +9,12 @@ const DateFormat = {
   YEAR_MONTH_DAY: 'DD/MM/YY HH:mm',
 };
 
-export { TRIP_POINT_TYPES, DateFormat };
+const FilterType = {
+  EVERYTHING: 'everything',
+  FUTURE: 'future',
+  PRESENT: 'present',
+  PAST: 'past'
+};
+
+export { TRIP_POINT_TYPES, DateFormat, FilterType };
 
