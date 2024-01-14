@@ -1,19 +1,19 @@
 import dayjs from 'dayjs';
-import { DATE_FORMAT } from './const.js';
-import duration from 'dayjs/plugin/duration';
+import utc from 'dayjs/plugin/utc.js';
+import { DateFormat } from './const.js';
 
-dayjs.extend(duration);
+dayjs.extend(utc);
 
-
-//const oneMinuteAgo = dayjs().subtract(1, 'minute');
-//const dur = dayjs.duration(dayjs().diff(oneMinuteAgo));
-
-//dayjs.utc(dur.asMilliseconds()).format('HH:mm:ss'); // "00:01:00"
-
-
-function humanizeDate(dueDate) {
-  return dueDate ? dayjs(dueDate).format(DATE_FORMAT) : '';
+function humanizeDate(date, dateFormat) {
+  return date ? dayjs.utc(date).format(dateFormat) : '';
 }
 
-export { humanizeDate };
+function calculatePointDuration(dateEnd, dateStart) {
+  const totalData = `${humanizeDate((dayjs(dateEnd).diff(dayjs(dateStart))), DateFormat.DAYS)}D
+  ${humanizeDate((dayjs(dateEnd).diff(dayjs(dateStart))), DateFormat.HOURS)}H
+  ${humanizeDate((dayjs(dateEnd).diff(dayjs(dateStart))), DateFormat.MINUTES)}M`;
+  return totalData;
+}
+
+export { humanizeDate, calculatePointDuration };
 
