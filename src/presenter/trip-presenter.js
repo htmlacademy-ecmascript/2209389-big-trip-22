@@ -1,13 +1,13 @@
 import EditListView from '../view/event-list-view.js';
-import FilterView from '../view/filter-veiw.js';
+import FilterView from '../view/filter-view.js';
 import PointEditView from '../view/point-edit-view.js';
 import PointView from '../view/point-view.js';
-import SortView from '../view/sort-veiw.js';
+import SortView from '../view/sort-view.js';
 import InfoTripView from '../view/info-trip-view.js';
 import { RenderPosition } from '../render.js';
 import { render, replace } from '../framework/render.js';
 import EmptyListView from '../view/empty-list-view.js';
-import { generateFilter } from '../mock/filter-mock.js';
+import { generateFilter } from '../model/point-model.js';
 
 export default class TripPresenter {
   #sortComponent = new SortView();
