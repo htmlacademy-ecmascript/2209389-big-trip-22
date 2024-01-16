@@ -1,4 +1,4 @@
-import EditListView from '../view/event-list-view.js';
+import PointsListView from '../view/points-list-view.js';
 import FilterView from '../view/filter-view.js';
 import PointEditView from '../view/point-edit-view.js';
 import PointView from '../view/point-view.js';
@@ -6,12 +6,15 @@ import SortView from '../view/sort-view.js';
 import InfoTripView from '../view/info-trip-view.js';
 import { RenderPosition } from '../render.js';
 import { render, replace } from '../framework/render.js';
-import EmptyListView from '../view/empty-list-view.js';
+import NoPointsView from '../view/no-points-view.js';
 import { generateFilter } from '../model/point-model.js';
 
 export default class TripPresenter {
   #sortComponent = new SortView();
-  #editListComponent = new EditListView();
+  #noPointsComponent = new NoPointsView();
+  #pointsListComponent = new PointsListView();
+  #infoTripComponent = new InfoTripView();
+  #filterComponent = null;
   #container = null;
   #pointModel = null;
   #infoTripElement = null;
@@ -66,7 +69,33 @@ export default class TripPresenter {
       replace(pointComponent, pointEditComponent);
     }
 
-    render (pointComponent, this.#editListComponent.element);
+    render (pointComponent, this.#pointsListComponent.element);
+  }
+
+  #renderSort () {
+    render(this.#sortComponent, this.#container);
+  }
+
+  #renderNoPoints () {
+    render (this.#noPointsComponent, this.#container, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderInfoTrip () {
+    render(this.#infoTripComponent, this.#infoTripElement, RenderPosition.AFTERBEGIN);
+  }
+
+  #renderPointsList () {
+    render(this.#pointsListComponent, this.#container);
+  }
+
+  #renderFilter () {
+
+    const points = this.#pointModel.points;
+    const filters = generateFilter(points);
+
+    this.#filterComponent = new FilterView({filters});
+    render(this.#filterComponent, this.#filterElement);
+
   }
 
   #renderTripEvents() {
@@ -74,17 +103,16 @@ export default class TripPresenter {
     const destinations = this.#pointModel.destinations;
     const offers = this.#pointModel.offers;
 
-    const filters = generateFilter(points);
 
     if (points.length === 0) {
-      render (new EmptyListView(), this.#container, RenderPosition.AFTERBEGIN);
+      this.#renderNoPoints ();
       return;
     }
 
-    render(new InfoTripView(), this.#infoTripElement, RenderPosition.AFTERBEGIN);
-    render(this.#sortComponent, this.#container);
-    render(this.#editListComponent, this.#container);
-    render(new FilterView({filters}), this.#filterElement);
+    this.#renderInfoTrip();
+    this.#renderSort();
+    this.#renderPointsList();
+    this.#renderFilter();
 
     for (const point of points) {
       this.#renderPoint(point, destinations, offers);
