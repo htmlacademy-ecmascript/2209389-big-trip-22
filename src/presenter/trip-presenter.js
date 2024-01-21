@@ -1,13 +1,13 @@
 import PointsListView from '../view/points-list-view.js';
 import FilterView from '../view/filter-view.js';
-import PointEditView from '../view/point-edit-view.js';
-import PointView from '../view/point-view.js';
+
 import SortView from '../view/sort-view.js';
 import InfoTripView from '../view/info-trip-view.js';
 import { RenderPosition } from '../render.js';
 import { render, replace } from '../framework/render.js';
 import NoPointsView from '../view/no-points-view.js';
 import { generateFilter } from '../model/point-model.js';
+import PointPresenter from './point-presener.js';
 
 export default class TripPresenter {
   #sortComponent = new SortView();
@@ -19,6 +19,7 @@ export default class TripPresenter {
   #pointModel = null;
   #infoTripElement = null;
   #filterElement = null;
+  #pointPresenters = new Map ();
 
   constructor ({ container, pointModel, infoTripElement, filterElement }) {
     this.#container = container;
@@ -31,45 +32,12 @@ export default class TripPresenter {
     this.#renderTripEvents();
   }
 
-  #renderPoint (point, destinations, offers) {
-    const escKeyDownHandler = (evt) => {
-      if (evt.key === 'Escape') {
-        evt.preventDefault();
-        replaceFormToPoint();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      }
-    };
-
-    const pointComponent = new PointView ({
-      point, destinations, offers,
-      onRollupButtonClick: () => {
-        replacePointToForm();
-        document.addEventListener('keydown', escKeyDownHandler);
-      }
+  #renderPoints (point, destinations, offers) {
+    const pointPresenter = new PointPresenter({
+      pointListContainer: this.#pointsListComponent.element
     });
-
-    const pointEditComponent = new PointEditView ({
-      point,
-      destinations,
-      offers,
-      onEditFormSubmit: () => {
-        replaceFormToPoint();
-        document.removeEventListener('keydown', escKeyDownHandler);
-      },
-      onRollupButtonClick: () => {
-        replaceFormToPoint();
-      }
-    });
-
-    function replacePointToForm() {
-      replace(pointEditComponent, pointComponent);
-    }
-
-    function replaceFormToPoint() {
-      replace(pointComponent, pointEditComponent);
-    }
-
-    render (pointComponent, this.#pointsListComponent.element);
+    pointPresenter.init(point, destinations, offers);
+    this.#pointPresenters.set(point.id, pointPresenter);
   }
 
   #renderSort () {
@@ -103,9 +71,8 @@ export default class TripPresenter {
     const destinations = this.#pointModel.destinations;
     const offers = this.#pointModel.offers;
 
-
     if (points.length === 0) {
-      this.#renderNoPoints ();
+      this.#renderNoPoints();
       return;
     }
 
@@ -115,7 +82,13 @@ export default class TripPresenter {
     this.#renderFilter();
 
     for (const point of points) {
-      this.#renderPoint(point, destinations, offers);
+      this.#renderPoints(point, destinations, offers);
     }
   }
+
+  #clearPointList() {
+    this.#pointPresenters.forEach((presenter) => presenter.destroy());
+    this.#pointPresenters.clear();
+  }
+
 }
