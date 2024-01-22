@@ -7,7 +7,7 @@ import { render, replace } from '../framework/render.js';
 import NoPointsView from '../view/no-points-view.js';
 import { generateFilter } from '../model/point-model.js';
 import PointPresenter from './point-presener.js';
-import { updatePoint } from '../utils.js';
+import { updateItem } from '../utils.js';
 
 export default class TripPresenter {
   #sortComponent = new SortView();
@@ -19,7 +19,9 @@ export default class TripPresenter {
   #pointModel = null;
   #infoTripElement = null;
   #filterElement = null;
-  #tripPoints = [];
+  #tripPoints = [ ];
+  #offers = null;
+  #destinations = null;
   #pointPresenters = new Map ();
 
   constructor ({ container, pointModel, infoTripElement, filterElement }) {
@@ -31,17 +33,21 @@ export default class TripPresenter {
 
   init () {
     this.#tripPoints = [...this.#pointModel.points];
+    // this.#offers = [...this.#pointModel.offers];
+    // this.#destinations = [...this.#pointModel.destinations];
+
     this.#renderTripEvents();
   }
 
   #handlePointChange = (updatedPoint) => {
-    this.#tripPoints = updatePoint(this.#tripPoints, updatePoint);
-    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint);
+    this.#tripPoints = updateItem(this.#tripPoints, updatedPoint);
+    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint /*,this.#destinations, this.#offers*/);
   };
 
   #renderPoints (point, destinations, offers) {
     const pointPresenter = new PointPresenter({
-      pointListContainer: this.#pointsListComponent.element
+      pointListContainer: this.#pointsListComponent.element,
+      onDataChange: this.#handlePointChange
     });
     pointPresenter.init(point, destinations, offers);
     this.#pointPresenters.set(point.id, pointPresenter);

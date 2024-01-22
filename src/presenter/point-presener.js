@@ -14,9 +14,12 @@ export default class PointPresenter {
   #destinations = null;
   #offers = null;
 
+  #handleDataChange = null;
 
-  constructor ({ pointListContainer }) {
+
+  constructor ({ pointListContainer, onDataChange }) {
     this.#pointListContainer = pointListContainer;
+    this.#handleDataChange = onDataChange;
   }
 
   init (point, destinations, offers) {
@@ -32,6 +35,7 @@ export default class PointPresenter {
       destinations: this.#destinations,
       offers: this.#offers,
       onRollupButtonClick: this.#handleRollupButtonClick,
+      onFavoriteClick: this.#handleFavoriteClick
     });
 
     this.#pointEditComponent = new PointEditView({
@@ -86,7 +90,14 @@ export default class PointPresenter {
     this.#replacePointToForm();
   };
 
-  #handleFormSubmit = () => {
+  // при клике на кнопку избранного пока что копируем все задачи и меняем флаг favorite
+  #handleFavoriteClick = () => {
+    this.#handleDataChange({...this.#point, isFavorite: !this.#point.isFavorite});
+  };
+
+  //для обработчика кнопки save передаем информацию по задаче (вторая строка)
+  #handleFormSubmit = (point) => {
     this.#replaceFormToPoint();
+    this.#handleDataChange(point);
   };
 }
