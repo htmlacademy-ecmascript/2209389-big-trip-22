@@ -15,5 +15,9 @@ function calculatePointDuration(dateEnd, dateStart) {
   return totalData;
 }
 
-export { humanizeDate, calculatePointDuration };
+function updateItem (items, update) {
+  return items.map((item) => item.id === update.id ? update : item);
+}
+
+export { humanizeDate, calculatePointDuration, updateItem };
 

@@ -1,6 +1,7 @@
 import { points } from '../mock/points-mock.js';
 import { offers } from '../mock/offers-mock.js';
 import { destinations } from '../mock/destinations-mock.js';
+import { filter } from '../filter.js';
 
 export default class PointModel {
   #points = null;
@@ -31,3 +32,15 @@ export default class PointModel {
     return this.#offers;
   }
 }
+
+
+function generateFilter(pointsToFilter) {
+  return Object.entries(filter).map(
+    ([filterType, filterPoints]) => ({
+      type: filterType,
+      count: filterPoints(pointsToFilter).length,
+    }),
+  );
+}
+
+export {generateFilter};
