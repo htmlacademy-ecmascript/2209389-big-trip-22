@@ -629,14 +629,13 @@ class TripPresenter {
   }
   init() {
     this.#tripPoints = [...this.#pointModel.points];
-    // this.#offers = [...this.#pointModel.offers];
-    // this.#destinations = [...this.#pointModel.destinations];
-
+    this.#offers = [...this.#pointModel.offers];
+    this.#destinations = [...this.#pointModel.destinations];
     this.#renderTripEvents();
   }
   #handlePointChange = updatedPoint => {
     this.#tripPoints = (0,_utils_js__WEBPACK_IMPORTED_MODULE_9__.updateItem)(this.#tripPoints, updatedPoint);
-    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint /*,this.#destinations, this.#offers*/);
+    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint, this.#destinations, this.#offers);
   };
   #renderPoints(point, destinations, offers) {
     const pointPresenter = new _point_presener_js__WEBPACK_IMPORTED_MODULE_8__["default"]({
@@ -1893,4 +1892,4 @@ tripPresenter.init();
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle.7ce4bb050bcd280fd6ce.js.map
+//# sourceMappingURL=bundle.ae20646ebfb9f6938de4.js.map
