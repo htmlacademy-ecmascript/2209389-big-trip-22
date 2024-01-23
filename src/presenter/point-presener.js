@@ -2,24 +2,31 @@ import { render, replace, remove } from '../framework/render.js';
 import PointEditView from '../view/point-edit-view.js';
 import PointView from '../view/point-view.js';
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING',
+};
+
 
 export default class PointPresenter {
 
   #pointListContainer = null;
-
   #pointComponent = null;
   #pointEditComponent = null;
 
   #point = null;
   #destinations = null;
   #offers = null;
+  #mode = Mode.DEFAULT;
 
   #handleDataChange = null;
+  #handleModeChange = null;
 
 
-  constructor ({ pointListContainer, onDataChange }) {
+  constructor ({ pointListContainer, onDataChange, onModeChange }) {
     this.#pointListContainer = pointListContainer;
     this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
 
   init (point, destinations, offers) {
@@ -43,18 +50,19 @@ export default class PointPresenter {
       destinations: this.#destinations,
       offers: this.#offers,
       onEditFormSubmit: this.#handleFormSubmit,
+      onRollupButtonClick: this.#handleRollDownButtonClick,
     });
 
     if (prevPointComponent === null || prevPointEditComponent === null) {
       render(this.#pointComponent, this.#pointListContainer);
-      //здесь можно явно указать return но линтер на него ругается
+      return;
     }
 
-    if (this.#pointListContainer.contains(prevPointComponent)) {
+    if (this.#mode === Mode.DEFAULT) {
       replace (this.#pointComponent, prevPointComponent);
     }
 
-    if (this.#pointListContainer.contains(prevPointEditComponent)) {
+    if (this.#mode === Mode.EDITING) {
       replace (this.#pointEditComponent, prevPointEditComponent);
     }
 
@@ -68,27 +76,41 @@ export default class PointPresenter {
     remove(this.#pointEditComponent);
   }
 
-  #replacePointToForm() {
-    replace (this.#pointEditComponent, this.#pointComponent);
-    document.addEventListener('keydown', this.#escKeyDownHandler);
+  resetView() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceEditFormToPoint();
+    }
   }
 
-  #replaceFormToPoint() {
+  #replacePointToEditForm() {
+    replace (this.#pointEditComponent, this.#pointComponent);
+    document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
+  }
+
+  #replaceEditFormToPoint() {
     replace(this.#pointComponent, this.#pointEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
   }
 
   #escKeyDownHandler = (evt) => {
     if (evt.key === 'Escape') {
-      evt.preventDfault();
-      this.#replaceFormToPoint();
+      evt.preventDefault();
+      this.#replaceEditFormToPoint();
     }
   };
 
 
   #handleRollupButtonClick = () => {
-    this.#replacePointToForm();
+    this.#replacePointToEditForm();
   };
+
+  #handleRollDownButtonClick = () => {
+    this.#replaceEditFormToPoint();
+  };
+
 
   // при клике на кнопку избранного пока что копируем все задачи и меняем флаг favorite
   #handleFavoriteClick = () => {
@@ -97,7 +119,7 @@ export default class PointPresenter {
 
   //для обработчика кнопки save передаем информацию по задаче (вторая строка)
   #handleFormSubmit = (point) => {
-    this.#replaceFormToPoint();
+    this.#replaceEditFormToPoint();
     this.#handleDataChange(point);
   };
 }
