@@ -33,15 +33,15 @@ export default class TripPresenter {
 
   init () {
     this.#tripPoints = [...this.#pointModel.points];
-    // this.#offers = [...this.#pointModel.offers];
-    // this.#destinations = [...this.#pointModel.destinations];
+    this.#offers = [...this.#pointModel.offers];
+    this.#destinations = [...this.#pointModel.destinations];
 
     this.#renderTripEvents();
   }
 
   #handlePointChange = (updatedPoint) => {
     this.#tripPoints = updateItem(this.#tripPoints, updatedPoint);
-    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint /*,this.#destinations, this.#offers*/);
+    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint ,this.#destinations, this.#offers);
   };
 
   #renderPoints (point, destinations, offers) {
