@@ -485,6 +485,10 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
+const Mode = {
+  DEFAULT: 'DEFAULT',
+  EDITING: 'EDITING'
+};
 class PointPresenter {
   #pointListContainer = null;
   #pointComponent = null;
@@ -492,13 +496,17 @@ class PointPresenter {
   #point = null;
   #destinations = null;
   #offers = null;
+  #mode = Mode.DEFAULT;
   #handleDataChange = null;
+  #handleModeChange = null;
   constructor({
     pointListContainer,
-    onDataChange
+    onDataChange,
+    onModeChange
   }) {
     this.#pointListContainer = pointListContainer;
     this.#handleDataChange = onDataChange;
+    this.#handleModeChange = onModeChange;
   }
   init(point, destinations, offers) {
     this.#point = point;
@@ -517,16 +525,17 @@ class PointPresenter {
       point: this.#point,
       destinations: this.#destinations,
       offers: this.#offers,
-      onEditFormSubmit: this.#handleFormSubmit
+      onEditFormSubmit: this.#handleFormSubmit,
+      onRollupButtonClick: this.#handleRollDownButtonClick
     });
     if (prevPointComponent === null || prevPointEditComponent === null) {
       (0,_framework_render_js__WEBPACK_IMPORTED_MODULE_0__.render)(this.#pointComponent, this.#pointListContainer);
-      //здесь можно явно указать return но линтер на него ругается
+      return;
     }
-    if (this.#pointListContainer.contains(prevPointComponent)) {
+    if (this.#mode === Mode.DEFAULT) {
       (0,_framework_render_js__WEBPACK_IMPORTED_MODULE_0__.replace)(this.#pointComponent, prevPointComponent);
     }
-    if (this.#pointListContainer.contains(prevPointEditComponent)) {
+    if (this.#mode === Mode.EDITING) {
       (0,_framework_render_js__WEBPACK_IMPORTED_MODULE_0__.replace)(this.#pointEditComponent, prevPointEditComponent);
     }
     (0,_framework_render_js__WEBPACK_IMPORTED_MODULE_0__.remove)(prevPointComponent);
@@ -536,22 +545,33 @@ class PointPresenter {
     (0,_framework_render_js__WEBPACK_IMPORTED_MODULE_0__.remove)(this.#pointComponent);
     (0,_framework_render_js__WEBPACK_IMPORTED_MODULE_0__.remove)(this.#pointEditComponent);
   }
-  #replacePointToForm() {
+  resetView() {
+    if (this.#mode !== Mode.DEFAULT) {
+      this.#replaceEditFormToPoint();
+    }
+  }
+  #replacePointToEditForm() {
     (0,_framework_render_js__WEBPACK_IMPORTED_MODULE_0__.replace)(this.#pointEditComponent, this.#pointComponent);
     document.addEventListener('keydown', this.#escKeyDownHandler);
+    this.#handleModeChange();
+    this.#mode = Mode.EDITING;
   }
-  #replaceFormToPoint() {
+  #replaceEditFormToPoint() {
     (0,_framework_render_js__WEBPACK_IMPORTED_MODULE_0__.replace)(this.#pointComponent, this.#pointEditComponent);
     document.removeEventListener('keydown', this.#escKeyDownHandler);
+    this.#mode = Mode.DEFAULT;
   }
   #escKeyDownHandler = evt => {
     if (evt.key === 'Escape') {
-      evt.preventDfault();
-      this.#replaceFormToPoint();
+      evt.preventDefault();
+      this.#replaceEditFormToPoint();
     }
   };
   #handleRollupButtonClick = () => {
-    this.#replacePointToForm();
+    this.#replacePointToEditForm();
+  };
+  #handleRollDownButtonClick = () => {
+    this.#replaceEditFormToPoint();
   };
 
   // при клике на кнопку избранного пока что копируем все задачи и меняем флаг favorite
@@ -564,7 +584,7 @@ class PointPresenter {
 
   //для обработчика кнопки save передаем информацию по задаче (вторая строка)
   #handleFormSubmit = point => {
-    this.#replaceFormToPoint();
+    this.#replaceEditFormToPoint();
     this.#handleDataChange(point);
   };
 }
@@ -633,6 +653,9 @@ class TripPresenter {
     this.#destinations = [...this.#pointModel.destinations];
     this.#renderTripEvents();
   }
+  #handleModeChange = () => {
+    this.#pointPresenters.forEach(presenter => presenter.resetView());
+  };
   #handlePointChange = updatedPoint => {
     this.#tripPoints = (0,_utils_js__WEBPACK_IMPORTED_MODULE_9__.updateItem)(this.#tripPoints, updatedPoint);
     this.#pointPresenters.get(updatedPoint.id).init(updatedPoint, this.#destinations, this.#offers);
@@ -640,7 +663,8 @@ class TripPresenter {
   #renderPoints(point, destinations, offers) {
     const pointPresenter = new _point_presener_js__WEBPACK_IMPORTED_MODULE_8__["default"]({
       pointListContainer: this.#pointsListComponent.element,
-      onDataChange: this.#handlePointChange
+      onDataChange: this.#handlePointChange,
+      onModeChange: this.#handleModeChange
     });
     pointPresenter.init(point, destinations, offers);
     this.#pointPresenters.set(point.id, pointPresenter);
@@ -1892,4 +1916,4 @@ tripPresenter.init();
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle.ae20646ebfb9f6938de4.js.map
+//# sourceMappingURL=bundle.cfb3655a5dcba2c024ca.js.map
