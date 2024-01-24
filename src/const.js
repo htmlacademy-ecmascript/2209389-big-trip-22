@@ -16,5 +16,13 @@ const FilterType = {
   PAST: 'past'
 };
 
-export { TRIP_POINT_TYPES, DateFormat, FilterType };
+const SortType = {
+  DAY: 'day',
+  EVENT: 'event',
+  TIME: 'time',
+  PRICE: 'price',
+  OFFERS: 'offers'
+};
+
+export { TRIP_POINT_TYPES, DateFormat, FilterType, SortType };
 

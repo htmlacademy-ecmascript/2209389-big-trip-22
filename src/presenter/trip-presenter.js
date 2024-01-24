@@ -3,7 +3,7 @@ import FilterView from '../view/filter-view.js';
 import SortView from '../view/sort-view.js';
 import InfoTripView from '../view/info-trip-view.js';
 import { RenderPosition } from '../render.js';
-import { render, replace } from '../framework/render.js';
+import { render } from '../framework/render.js';
 import NoPointsView from '../view/no-points-view.js';
 import { generateFilter } from '../model/point-model.js';
 import PointPresenter from './point-presener.js';
