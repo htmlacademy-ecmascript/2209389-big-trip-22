@@ -8,9 +8,10 @@ import NoPointsView from '../view/no-points-view.js';
 import { generateFilter } from '../model/point-model.js';
 import PointPresenter from './point-presener.js';
 import { updateItem } from '../utils.js';
+import { SortType } from '../const.js';
 
 export default class TripPresenter {
-  #sortComponent = new SortView();
+  #sortComponent = null;
   #noPointsComponent = new NoPointsView();
   #pointsListComponent = new PointsListView();
   #infoTripComponent = new InfoTripView();
@@ -48,6 +49,22 @@ export default class TripPresenter {
     this.#pointPresenters.get(updatedPoint.id).init(updatedPoint ,this.#destinations, this.#offers);
   };
 
+  #handleSortTypeChange = (SortType) => {
+    // sort
+    // clear
+    // rerender
+  };
+
+  #renderSort () {
+
+    this.#sortComponent = new SortView ({
+
+      onSortTypeChange: this.#handleSortTypeChange
+    });
+
+    render(this.#sortComponent, this.#container);
+  }
+
   #renderPoints (point, destinations, offers) {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#pointsListComponent.element,
@@ -58,9 +75,6 @@ export default class TripPresenter {
     this.#pointPresenters.set(point.id, pointPresenter);
   }
 
-  #renderSort () {
-    render(this.#sortComponent, this.#container);
-  }
 
   #renderNoPoints () {
     render (this.#noPointsComponent, this.#container, RenderPosition.AFTERBEGIN);
