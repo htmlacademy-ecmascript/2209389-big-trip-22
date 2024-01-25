@@ -60,7 +60,7 @@ export default class TripPresenter {
         this.#tripPoints.sort(sortPointsByPrice);
         break;
       case SortType.TIME:
-        this.#tripPoints.some(sortPointsByTime);
+        this.#tripPoints.sort(sortPointsByTime);
         break;
       default:
         this.#tripPoints = [...this.#sourcedTripPoints];
@@ -75,9 +75,11 @@ export default class TripPresenter {
 
     this.#sortPoints(sortType);
 
-    // sort
-    // clear
-    // rerender
+    this.#clearPointList();
+
+    this.#renderOnlyPoints();
+
+
   };
 
   #renderSort () {
@@ -138,6 +140,21 @@ export default class TripPresenter {
     this.#renderPointsList();
     this.#renderFilter();
 
+    for (const point of points) {
+      this.#renderPoints(point, destinations, offers);
+    }
+  }
+
+  #renderOnlyPoints() {
+    const points = this.#tripPoints;
+    const destinations = this.#destinations;
+    const offers = this.#offers;
+
+    if (points.length === 0) {
+      this.#renderNoPoints();
+      return;
+    }
+    this.#renderPointsList();
     for (const point of points) {
       this.#renderPoints(point, destinations, offers);
     }
