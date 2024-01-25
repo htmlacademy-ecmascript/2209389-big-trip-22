@@ -829,18 +829,6 @@ function calculatePointDuration(dateEnd, dateStart) {
 function updateItem(items, update) {
   return items.map(item => item.id === update.id ? update : item);
 }
-function getWeightForNullDate(dateA, dateB) {
-  if (dateA === null && dateB === null) {
-    return 0;
-  }
-  if (dateA === null) {
-    return 1;
-  }
-  if (dateB === null) {
-    return -1;
-  }
-  return null;
-}
 function sortPointsByPrice(eventA, eventB) {
   return eventB.basePrice - eventA.basePrice;
 }
@@ -2004,4 +1992,4 @@ tripPresenter.init();
 
 /******/ })()
 ;
-//# sourceMappingURL=bundle.e54fd4bfee43e35f7e3f.js.map
+//# sourceMappingURL=bundle.fc0183f8d12bb0766320.js.map
