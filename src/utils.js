@@ -19,21 +19,6 @@ function updateItem (items, update) {
   return items.map((item) => item.id === update.id ? update : item);
 }
 
-function getWeightForNullDate (dateA, dateB) {
-  if (dateA === null && dateB === null) {
-    return 0;
-  }
-
-  if (dateA === null) {
-    return 1;
-  }
-
-  if (dateB === null) {
-    return -1;
-  }
-  return null;
-}
-
 function sortPointsByPrice (eventA, eventB) {
   return eventB.basePrice - eventA.basePrice;
 }
