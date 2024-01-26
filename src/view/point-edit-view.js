@@ -130,18 +130,21 @@ export default class PointEditView extends AbstractStatefulView {
 
     this.#handleFormSubmit = onEditFormSubmit;
     this.#handleEditClick = onRollupButtonClick;
-    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    this._restoreHandlers();
 
-    this.element.querySelectorAll('.event__type-input').forEach((typeRadioButton) => {
-      typeRadioButton.addEventListener('change', this.#changeTypeHandler);
-    });
-
-    this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
   }
 
   get template() {
     return createPointEditTemplate(this._state, this.#destinations, this.#offers);
+  }
+
+  _restoreHandlers(){
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    this.element.querySelectorAll('.event__type-input').forEach((typeRadioButton) => {
+      typeRadioButton.addEventListener('change', this.#changeTypeHandler);
+    });
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
   }
 
   #formSubmitHandler = (evt) => {
