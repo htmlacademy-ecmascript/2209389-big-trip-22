@@ -132,6 +132,12 @@ export default class PointEditView extends AbstractStatefulView {
     this.#handleEditClick = onRollupButtonClick;
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
     this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+
+    this.element.querySelectorAll('.event__type-input').forEach((typeRadioButton) => {
+      typeRadioButton.addEventListener('change', this.#changeTypeHandler);
+    });
+
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
   }
 
   get template() {
@@ -146,6 +152,25 @@ export default class PointEditView extends AbstractStatefulView {
   #editClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleEditClick();
+  };
+
+  #changeTypeHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({type: evt.target.value,});
+    this.updateElement(this._state);
+  };
+
+  #changeDestinationHandler = (evt) => {
+    evt.preventDefault();
+    const newDestination = this.#destinations.find((dest) => dest.name === evt.target.value);
+    if (newDestination) {
+      this._setState({
+        destination: newDestination.id,
+        description: newDestination.description,
+        pictures: newDestination.pictures,
+      });
+      this.updateElement(this._state);
+    }
   };
 
   static parsePointToState(point) {
