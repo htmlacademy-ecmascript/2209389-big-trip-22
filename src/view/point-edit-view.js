@@ -1,4 +1,4 @@
-import AbstractView from '../framework/view/abstract-view.js';
+import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { TRIP_POINT_TYPES } from '../const.js';
 import { humanizeDate } from '../utils.js';
 import { DateFormat } from '../const.js';
@@ -115,7 +115,7 @@ const createPointEditTemplate = (point, destinations, offers) => {
   );
 };
 
-export default class PointEditView extends AbstractView {
+export default class PointEditView extends AbstractStatefulView {
   #point = null;
   #destinations = null;
   #offers = null;
@@ -124,28 +124,71 @@ export default class PointEditView extends AbstractView {
 
   constructor ({point, destinations, offers, onEditFormSubmit, onRollupButtonClick}) {
     super();
-    this.#point = point;
+    this._setState(PointEditView.parsePointToState(point));
     this.#destinations = destinations;
     this.#offers = offers;
 
     this.#handleFormSubmit = onEditFormSubmit;
     this.#handleEditClick = onRollupButtonClick;
-    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    this._restoreHandlers();
+
   }
 
   get template() {
-    return createPointEditTemplate(this.#point, this.#destinations, this.#offers);
+    return createPointEditTemplate(this._state, this.#destinations, this.#offers);
+  }
+
+  reset(point) {
+    this.updateElement(
+      PointEditView.parsePointToState(point),
+    );
+  }
+
+  _restoreHandlers(){
+    this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
+    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    this.element.querySelectorAll('.event__type-input').forEach((typeRadioButton) => {
+      typeRadioButton.addEventListener('change', this.#changeTypeHandler);
+    });
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
   }
 
   #formSubmitHandler = (evt) => {
     evt.preventDefault();
-    this.#handleFormSubmit(this.#point);
+    this.#handleFormSubmit(PointEditView.parseStateToPoint(this._state));
   };
 
   #editClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleEditClick();
   };
+
+  #changeTypeHandler = (evt) => {
+    evt.preventDefault();
+    this._setState({type: evt.target.value,});
+    this.updateElement(this._state);
+  };
+
+  #changeDestinationHandler = (evt) => {
+    evt.preventDefault();
+    const newDestination = this.#destinations.find((dest) => dest.name === evt.target.value);
+    if (newDestination) {
+      this._setState({
+        destination: newDestination.id,
+        description: newDestination.description,
+        pictures: newDestination.pictures,
+      });
+      this.updateElement(this._state);
+    }
+  };
+
+  static parsePointToState(point) {
+    return {...point};
+  }
+
+  static parseStateToPoint(state) {
+    const point = {...state};
+    return point;
+  }
 
 }
