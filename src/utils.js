@@ -19,15 +19,19 @@ function updateItem (items, update) {
   return items.map((item) => item.id === update.id ? update : item);
 }
 
-function sortPointsByPrice (eventA, eventB) {
-  return eventB.basePrice - eventA.basePrice;
+function sortPointsByPrice (pointA, pointB) {
+  return pointB.basePrice - pointA.basePrice;
 }
 
-function sortPointsByTime (eventA, eventB) {
-  const durationA = dayjs(eventA.dateTo).diff(eventA.dateFrom);
-  const durationB = dayjs(eventB.dateTo).diff(eventB.dateFrom);
+function sortPointsByTime (pointA, pointB) {
+  const durationA = dayjs(pointA.dateTo).diff(pointA.dateFrom);
+  const durationB = dayjs(pointB.dateTo).diff(pointB.dateFrom);
   return durationB - durationA;
 }
 
-export { humanizeDate, calculatePointDuration, updateItem, sortPointsByPrice, sortPointsByTime };
+function sortPointsByDay (pointA, pointB) {
+  return dayjs(pointA.dateFrom) - dayjs(pointB.dateFrom);
+}
+
+export { humanizeDate, calculatePointDuration, updateItem, sortPointsByPrice, sortPointsByTime, sortPointsByDay };
 

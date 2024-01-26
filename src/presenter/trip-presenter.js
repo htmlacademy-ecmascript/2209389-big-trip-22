@@ -7,7 +7,7 @@ import { render } from '../framework/render.js';
 import NoPointsView from '../view/no-points-view.js';
 import { generateFilter } from '../model/point-model.js';
 import PointPresenter from './point-presener.js';
-import { updateItem, sortPointsByPrice, sortPointsByTime } from '../utils.js';
+import { updateItem, sortPointsByPrice, sortPointsByTime, sortPointsByDay } from '../utils.js';
 import { SortType } from '../const.js';
 
 export default class TripPresenter {
@@ -62,8 +62,9 @@ export default class TripPresenter {
       case SortType.TIME:
         this.#tripPoints.sort(sortPointsByTime);
         break;
+
       default:
-        this.#tripPoints = [...this.#sourcedTripPoints];
+        this.#tripPoints.sort(sortPointsByDay);
     }
     this.#currentSortType = sortType;
   }
@@ -99,6 +100,7 @@ export default class TripPresenter {
       onModeChange: this.#handleModeChange
     });
     pointPresenter.init(point, destinations, offers);
+
     this.#pointPresenters.set(point.id, pointPresenter);
   }
 
@@ -126,23 +128,14 @@ export default class TripPresenter {
   }
 
   #renderTripEvents() {
-    const points = this.#pointModel.points;
-    const destinations = this.#pointModel.destinations;
-    const offers = this.#pointModel.offers;
-
-    if (points.length === 0) {
-      this.#renderNoPoints();
-      return;
-    }
 
     this.#renderInfoTrip();
     this.#renderSort();
     this.#renderPointsList();
     this.#renderFilter();
+    this.#renderOnlyPoints();
 
-    for (const point of points) {
-      this.#renderPoints(point, destinations, offers);
-    }
+    this.#tripPoints.sort(sortPointsByDay);
   }
 
   #renderOnlyPoints() {
