@@ -2,6 +2,9 @@ import AbstractStatefulView from '../framework/view/abstract-stateful-view.js';
 import { TRIP_POINT_TYPES } from '../const.js';
 import { humanizeDate } from '../utils.js';
 import { DateFormat } from '../const.js';
+import flatpickr from 'flatpickr';
+
+import 'flatpickr/dist/flatpickr.min.css';
 
 const upFirstLetter = (word) => `${word[0].toUpperCase()}${word.slice(1)}`;
 const formatOfferTitle = (title) => title.split(' ').join(' ');
@@ -116,11 +119,12 @@ const createPointEditTemplate = (point, destinations, offers) => {
 };
 
 export default class PointEditView extends AbstractStatefulView {
-  #point = null;
   #destinations = null;
   #offers = null;
   #handleFormSubmit = null;
   #handleEditClick = null;
+  #dateFromPicker = null;
+  #dateToPicker = null;
 
   constructor ({point, destinations, offers, onEditFormSubmit, onRollupButtonClick}) {
     super();
@@ -151,6 +155,8 @@ export default class PointEditView extends AbstractStatefulView {
       typeRadioButton.addEventListener('change', this.#changeTypeHandler);
     });
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
+
+    this.#initDatePicker();
   }
 
   #formSubmitHandler = (evt) => {
@@ -182,6 +188,50 @@ export default class PointEditView extends AbstractStatefulView {
     }
   };
 
+  #dateFromCloseHandler = ([userDate]) => {
+    this._setState({dateFrom: userDate});
+    this.#dateToPicker.set('minDate', this._state.dateFrom);
+  };
+
+  #dateToCloseHandler = ([userDate]) => {
+    this._setState({dateTo: userDate});
+    this.#dateFromPicker.set('maxDate', this._state.dateTo);
+  };
+
+  #initDatePicker = () => {
+    const militaryTimeFormat = 'time_24hr';
+    const commonFlatpickrOptions = {
+      dateFormat: 'd/m/y H:i',
+      enableTime: true,
+      locale: {'firstDayOfWeek': 1},
+      [militaryTimeFormat]: true,
+    };
+
+
+    this.#dateFromPicker = flatpickr(
+      this.element.querySelector('input[name="event-start-time"]'),
+      {
+        ...commonFlatpickrOptions,
+        defaultDate: this._state.dateFrom,
+        onClose: this.#dateFromCloseHandler,
+        maxDate: this._state.dateTo,
+      }
+    );
+
+
+    this.#dateToPicker = flatpickr(
+      this.element.querySelector('input[name="event-end-time"]'),
+      {
+        ...commonFlatpickrOptions,
+        defaultDate: this._state.dateTo,
+        onClose: this.#dateToCloseHandler,
+        minDate: this._state.dateFrom,
+      }
+    );
+
+
+  };
+
   static parsePointToState(point) {
     return {...point};
   }
@@ -190,5 +240,17 @@ export default class PointEditView extends AbstractStatefulView {
     const point = {...state};
     return point;
   }
+
+  removeElement = () => {
+    super.removeElement();
+    if (this.#dateFromPicker) {
+      this.#dateFromPicker.destroy();
+      this.#dateFromPicker = null;
+    }
+    if (this.#dateToPicker) {
+      this.#dateToPicker.destroy();
+      this.#dateToPicker = null;
+    }
+  };
 
 }
