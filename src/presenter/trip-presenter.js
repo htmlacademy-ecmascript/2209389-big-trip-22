@@ -44,6 +44,18 @@ export default class TripPresenter {
     this.#renderTripEvents();
   }
 
+  get points() {
+    return this.#pointModel.points;
+  }
+
+  get offers() {
+    return this.#pointModel.offers;
+  }
+
+  get destinations() {
+    return this.#pointModel.destinations;
+  }
+
   #handleModeChange = () => {
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
