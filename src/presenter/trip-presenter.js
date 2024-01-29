@@ -32,6 +32,8 @@ export default class TripPresenter {
     this.#pointModel = pointModel;
     this.#infoTripElement = infoTripElement;
     this.#filterElement = filterElement;
+
+    this.#pointModel.addObserver(this.#handleModelEvent);
   }
 
   init () {
@@ -69,11 +71,19 @@ export default class TripPresenter {
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
 
-  #handlePointChange = (updatedPoint) => {
-    // this.#tripPoints = updateItem(this.#tripPoints, updatedPoint);
-    // this.#sourcedTripPoints = updateItem(this.#sourcedTripPoints, updatedPoint);
-    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint ,this.destinations, this.offers);
+  // #handlePointChange = (updatedPoint) => {
+  //   this.#tripPoints = updateItem(this.#tripPoints, updatedPoint);
+  //   this.#sourcedTripPoints = updateItem(this.#sourcedTripPoints, updatedPoint);
+  //   this.#pointPresenters.get(updatedPoint.id).init(updatedPoint ,this.destinations, this.offers);
+  // };
+
+  #handleViewAction = (actionType, updateType, update) => {
+
   };
+
+  #handleModelEvent = (updateType, data) => {
+
+  }
 
   // #sortPoints(sortType) {
   // }
@@ -107,7 +117,7 @@ export default class TripPresenter {
   #renderPoints (point, destinations, offers) {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#pointsListComponent.element,
-      onDataChange: this.#handlePointChange,
+      onDataChange: this.#handleViewAction,
       onModeChange: this.#handleModeChange
     });
     pointPresenter.init(point, destinations, offers);
