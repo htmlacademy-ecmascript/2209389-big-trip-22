@@ -20,12 +20,12 @@ export default class TripPresenter {
   #pointModel = null;
   #infoTripElement = null;
   #filterElement = null;
-  #tripPoints = [ ];
-  #offers = null;
-  #destinations = null;
+  //#tripPoints = [ ];
+  //#offers = null;
+  //#destinations = null;
   #pointPresenters = new Map ();
   #currentSortType = SortType.DAY;
-  #sourcedTripPoints = [];
+  //#sourcedTripPoints = [];
 
   constructor ({ container, pointModel, infoTripElement, filterElement }) {
     this.#container = container;
@@ -35,16 +35,25 @@ export default class TripPresenter {
   }
 
   init () {
-    this.#tripPoints = [...this.#pointModel.points];
-    this.#offers = [...this.#pointModel.offers];
-    this.#destinations = [...this.#pointModel.destinations];
+    // this.#tripPoints = [...this.#pointModel.points];
+    // this.#offers = [...this.#pointModel.offers];
+    // this.#destinations = [...this.#pointModel.destinations];
 
-    this.#sourcedTripPoints = [...this.#pointModel.points];
+    // this.#sourcedTripPoints = [...this.#pointModel.points];
 
     this.#renderTripEvents();
   }
 
   get points() {
+    switch (this.#currentSortType) {
+      case SortType.PRICE:
+        return [this.#pointModel.sort(sortPointsByPrice)];
+      case SortType.TIME:
+        return this.#pointModel.sort(sortPointsByTime);
+      case SortType.DAY:
+        return this.#pointModel.sort(sortPointsByDay);
+    }
+
     return this.#pointModel.points;
   }
 
@@ -61,32 +70,22 @@ export default class TripPresenter {
   };
 
   #handlePointChange = (updatedPoint) => {
-    this.#tripPoints = updateItem(this.#tripPoints, updatedPoint);
-    this.#sourcedTripPoints = updateItem(this.#sourcedTripPoints, updatedPoint);
-    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint ,this.#destinations, this.#offers);
+    // this.#tripPoints = updateItem(this.#tripPoints, updatedPoint);
+    // this.#sourcedTripPoints = updateItem(this.#sourcedTripPoints, updatedPoint);
+    this.#pointPresenters.get(updatedPoint.id).init(updatedPoint ,this.destinations, this.offers);
   };
 
-  #sortPoints(sortType) {
-    switch (sortType) {
-      case SortType.PRICE:
-        this.#tripPoints.sort(sortPointsByPrice);
-        break;
-      case SortType.TIME:
-        this.#tripPoints.sort(sortPointsByTime);
-        break;
-
-      default:
-        this.#tripPoints.sort(sortPointsByDay);
-    }
-    this.#currentSortType = sortType;
-  }
+  // #sortPoints(sortType) {
+  // }
 
   #handleSortTypeChange = (sortType) => {
     if (this.#currentSortType === sortType) {
       return;
     }
 
-    this.#sortPoints(sortType);
+    // this.#sortPoints(sortType);
+
+    this.#currentSortType = sortType;
 
     this.#clearPointList();
 
@@ -147,21 +146,18 @@ export default class TripPresenter {
     this.#renderFilter();
     this.#renderOnlyPoints();
 
-    this.#tripPoints.sort(sortPointsByDay);
+    this.points.sort(sortPointsByDay);
   }
 
   #renderOnlyPoints() {
-    const points = this.#tripPoints;
-    const destinations = this.#destinations;
-    const offers = this.#offers;
 
-    if (points.length === 0) {
+    if (this.points.length === 0) {
       this.#renderNoPoints();
       return;
     }
     this.#renderPointsList();
-    for (const point of points) {
-      this.#renderPoints(point, destinations, offers);
+    for (const point of this.points) {
+      this.#renderPoints(point, this.destinations, this.offers);
     }
   }
 
