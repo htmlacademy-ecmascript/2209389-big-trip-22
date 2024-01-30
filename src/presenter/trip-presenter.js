@@ -8,7 +8,7 @@ import NoPointsView from '../view/no-points-view.js';
 import { generateFilter } from '../model/point-model.js';
 import PointPresenter from './point-presener.js';
 import { updateItem, sortPointsByPrice, sortPointsByTime, sortPointsByDay } from '../utils.js';
-import { SortType } from '../const.js';
+import { SortType, UpdateType, UserAction } from '../const.js';
 
 export default class TripPresenter {
   #sortComponent = null;
@@ -67,6 +67,7 @@ export default class TripPresenter {
     return this.#pointModel.destinations;
   }
 
+
   #handleModeChange = () => {
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
@@ -77,13 +78,37 @@ export default class TripPresenter {
   //   this.#pointPresenters.get(updatedPoint.id).init(updatedPoint ,this.destinations, this.offers);
   // };
 
+  //сюда попадают данные из дочерних презенторов и мы вызываем модель
   #handleViewAction = (actionType, updateType, update) => {
-
+    switch (actionType) {
+      case UserAction.ADD_POINT:
+        this.#pointModel.addPoint(updateType, update);
+        break;
+      case UserAction.UPDATE_POINT:
+        this.#pointModel.updatePoint(updateType, update);
+        break;
+      case UserAction.DELETE_POINT:
+        this.#pointModel.deletePoint(updateType, update);
+        break;
+    }
   };
 
+  //здесь будет запускаться перерисовка
   #handleModelEvent = (updateType, data) => {
-
-  }
+    // в зависимости от типа изменения решаем что делать:
+    switch (updateType) {
+      // обновить часть точки
+      case UpdateType.PATCH:
+        this.#pointPresenters.get(data.id).init(data);
+        break;
+      case UpdateType.MINOR:
+        // обновить точки
+        break;
+      case UpdateType.MAJOR:
+        //обновить все приложение?
+        break;
+    }
+  };
 
   // #sortPoints(sortType) {
   // }
