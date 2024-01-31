@@ -125,12 +125,15 @@ export default class PointEditView extends AbstractStatefulView {
   #handleEditClick = null;
   #dateFromPicker = null;
   #dateToPicker = null;
+  #handleDeleteClick = null;
 
-  constructor ({point, destinations, offers, onEditFormSubmit, onRollupButtonClick}) {
+
+  constructor ({point, destinations, offers, onEditFormSubmit, onRollupButtonClick, onDeleteClick}) {
     super();
     this._setState(PointEditView.parsePointToState(point));
     this.#destinations = destinations;
     this.#offers = offers;
+    this.#handleDeleteClick = onDeleteClick;
 
     this.#handleFormSubmit = onEditFormSubmit;
     this.#handleEditClick = onRollupButtonClick;
@@ -155,6 +158,7 @@ export default class PointEditView extends AbstractStatefulView {
       typeRadioButton.addEventListener('change', this.#changeTypeHandler);
     });
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
+    this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
 
     this.#initDatePicker();
   }
@@ -197,6 +201,11 @@ export default class PointEditView extends AbstractStatefulView {
     this._setState({dateTo: userDate});
     this.#dateFromPicker.set('maxDate', this._state.dateTo);
   };
+
+  #formDeleteClickHandler = (evt) => {
+    evt.preventDefault();
+    this.#handleDeleteClick(PointEditView.parseStateToPoint(this._state));
+  }
 
   #initDatePicker = () => {
     const militaryTimeFormat = 'time_24hr';
