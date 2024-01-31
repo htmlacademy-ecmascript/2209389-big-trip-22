@@ -10,6 +10,7 @@ export default class extends Observable {
   #offers = null;
 
   constructor() {
+    super();
     this.#points = [];
     this.#destinations = [];
     this.#offers = [];

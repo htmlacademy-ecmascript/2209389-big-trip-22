@@ -3,7 +3,7 @@ import FilterView from '../view/filter-view.js';
 import SortView from '../view/sort-view.js';
 import InfoTripView from '../view/info-trip-view.js';
 import { RenderPosition } from '../render.js';
-import { render } from '../framework/render.js';
+import { render, remove } from '../framework/render.js';
 import NoPointsView from '../view/no-points-view.js';
 import { generateFilter } from '../model/point-model.js';
 import PointPresenter from './point-presener.js';
@@ -49,11 +49,11 @@ export default class TripPresenter {
   get points() {
     switch (this.#currentSortType) {
       case SortType.PRICE:
-        return [this.#pointModel.sort(sortPointsByPrice)];
+        return [...this.#pointModel.points.sort(sortPointsByPrice)];
       case SortType.TIME:
-        return this.#pointModel.sort(sortPointsByTime);
+        return [...this.#pointModel.points.sort(sortPointsByTime)];
       case SortType.DAY:
-        return this.#pointModel.sort(sortPointsByDay);
+        return [...this.#pointModel.points.sort(sortPointsByDay)];
     }
 
     return this.#pointModel.points;
@@ -102,10 +102,14 @@ export default class TripPresenter {
         this.#pointPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        // обновить точки
+        this.#clearTrip();
+        this.#renderTripEvents();
+        //this.#renderEvents();
         break;
       case UpdateType.MAJOR:
-        //обновить все приложение?
+        this.#clearTrip({resetSortType: true});
+        this.#renderTripEvents();
+        //this.#renderEvents();
         break;
     }
   };
@@ -121,10 +125,11 @@ export default class TripPresenter {
     // this.#sortPoints(sortType);
 
     this.#currentSortType = sortType;
-
-    this.#clearPointList();
-
-    this.#renderOnlyPoints();
+    // this.#clearPointList();
+    // this.#renderOnlyPoints();
+    this.#clearTrip();
+    //this.#renderPage();
+    this.#renderTripEvents();
 
 
   };
@@ -132,7 +137,7 @@ export default class TripPresenter {
   #renderSort () {
 
     this.#sortComponent = new SortView ({
-
+      currentSortType: this.#currentSortType,
       onSortTypeChange: this.#handleSortTypeChange
     });
 
@@ -196,9 +201,22 @@ export default class TripPresenter {
     }
   }
 
-  #clearPointList() {
+  #clearTrip({resetSortType = false} = {}) {
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
+
+    remove(this.#sortComponent);
+    remove(this.#noPointsComponent);
+    remove(this.#filterComponent);
+
+    if (resetSortType) {
+      this.#currentSortType = SortType.DAY;
+    }
   }
+
+  // #clearPointList() {
+  //   this.#pointPresenters.forEach((presenter) => presenter.destroy());
+  //   this.#pointPresenters.clear();
+  // }
 
 }
