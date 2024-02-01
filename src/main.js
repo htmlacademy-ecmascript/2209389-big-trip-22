@@ -29,7 +29,6 @@ const tripPresenter = new TripPresenter({
   container: siteHeaderElement,
   pointModel: pointModel,
   infoTripElement: infoTripElement,
-  //filterElement: filterElement,
   filterModel: filterModel,
   onNewPointDestroy: newPointFormCloseHandler,
 });

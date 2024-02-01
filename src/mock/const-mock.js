@@ -1,4 +1,3 @@
-import { TRIP_POINT_TYPES } from '../const.js';
 
 const emptyPoint = {
   basePrice: '',
