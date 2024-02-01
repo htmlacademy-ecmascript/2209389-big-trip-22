@@ -3,6 +3,7 @@ import { TRIP_POINT_TYPES } from '../const.js';
 import { humanizeDate } from '../utils.js';
 import { DateFormat } from '../const.js';
 import flatpickr from 'flatpickr';
+import { emptyPoint, emptyDestinations, emptyOffers } from '../mock/const-mock.js';
 
 import 'flatpickr/dist/flatpickr.min.css';
 
@@ -128,15 +129,15 @@ export default class PointEditView extends AbstractStatefulView {
   #handleDeleteClick = null;
 
 
-  constructor ({point, destinations, offers, onEditFormSubmit, onRollupButtonClick, onDeleteClick}) {
+  constructor ({point = emptyPoint, destinations = emptyDestinations, offers = emptyOffers, onEditFormSubmit, onRollupButtonClick, onDeleteClick}) {
     super();
     this._setState(PointEditView.parsePointToState(point));
     this.#destinations = destinations;
     this.#offers = offers;
-    this.#handleDeleteClick = onDeleteClick;
 
     this.#handleFormSubmit = onEditFormSubmit;
     this.#handleEditClick = onRollupButtonClick;
+    this.#handleDeleteClick = onDeleteClick;
     this._restoreHandlers();
 
   }
@@ -152,14 +153,18 @@ export default class PointEditView extends AbstractStatefulView {
   }
 
   _restoreHandlers(){
+    if (this.element.querySelector('.event__rollup-btn')) {
+      this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    }
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
-    this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+
     this.element.querySelectorAll('.event__type-input').forEach((typeRadioButton) => {
       typeRadioButton.addEventListener('change', this.#changeTypeHandler);
     });
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
-
+    //TODO новая точка не имеет стрелки 'event__rollup-btn' поэтому обработчик не срабатывает
+    //this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
     this.#initDatePicker();
   }
 
@@ -205,7 +210,7 @@ export default class PointEditView extends AbstractStatefulView {
   #formDeleteClickHandler = (evt) => {
     evt.preventDefault();
     this.#handleDeleteClick(PointEditView.parseStateToPoint(this._state));
-  }
+  };
 
   #initDatePicker = () => {
     const militaryTimeFormat = 'time_24hr';

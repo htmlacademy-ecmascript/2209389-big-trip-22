@@ -10,6 +10,10 @@ const siteHeaderElement = siteMainElement.querySelector('.trip-events');
 const infoTripElement = document.querySelector('.trip-main');
 const filterElement = document.querySelector('.trip-controls__filters');
 
+const newPointButton = infoTripElement.querySelector('.trip-main__event-add-btn');
+
+newPointButton.addEventListener('click', newPointButtonClickHandler);
+
 const pointModel = new PointModel();
 pointModel.init();
 
@@ -21,14 +25,24 @@ const filterPresenter = new FilterPresenter ({
   pointsModel: pointModel
 });
 
-filterPresenter.init();
-
-
 const tripPresenter = new TripPresenter({
   container: siteHeaderElement,
   pointModel: pointModel,
   infoTripElement: infoTripElement,
   //filterElement: filterElement,
   filterModel: filterModel,
+  onNewPointDestroy: newPointFormCloseHandler,
 });
+
+function newPointFormCloseHandler() {
+  newPointButton.disabled = false;
+}
+
+function newPointButtonClickHandler() {
+  tripPresenter.createPoint();
+  newPointButton.disabled = true;
+}
+
+
+filterPresenter.init();
 tripPresenter.init();

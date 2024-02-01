@@ -10,6 +10,7 @@ import PointPresenter from './point-presener.js';
 import { updateItem, sortPointsByPrice, sortPointsByTime, sortPointsByDay } from '../utils.js';
 import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 import { filter } from '../filter.js';
+import NewPointPresenter from './new-point-presenter.js';
 
 export default class TripPresenter {
   #sortComponent = null;
@@ -29,13 +30,20 @@ export default class TripPresenter {
   //#sourcedTripPoints = [];
   #filterModel = null;
   #filterType = FilterType.EVERYTHING;
+  #newPointPresenter = null;
 
-  constructor ({ container, pointModel, infoTripElement, /*filterElement*/ filterModel  }) {
+
+  constructor ({ container, pointModel, infoTripElement, /*filterElement*/ filterModel, onNewPointDestroy}) {
     this.#container = container;
     this.#pointModel = pointModel;
     this.#infoTripElement = infoTripElement;
     //this.#filterElement = filterElement;
     this.#filterModel = filterModel;
+    this.#newPointPresenter = new NewPointPresenter({
+      pointListContainer: this.#pointsListComponent.element,
+      onDataChange: this.#handleViewAction,
+      onDestroy: onNewPointDestroy,
+    });
 
     this.#pointModel.addObserver(this.#handleModelEvent);
     this.#filterModel.addObserver(this.#handleModelEvent);
@@ -75,8 +83,15 @@ export default class TripPresenter {
     return this.#pointModel.destinations;
   }
 
+  createPoint() {
+    this.#currentSortType = SortType.DAY;
+    this.#filterModel.setFilter(UpdateType.MAJOR, FilterType.EVERYTHING);
+    this.#newPointPresenter.init();
+  }
+
 
   #handleModeChange = () => {
+    this.#newPointPresenter.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.resetView());
   };
 
@@ -213,6 +228,7 @@ export default class TripPresenter {
   }
 
   #clearTrip({resetSortType = false} = {}) {
+    this.#newPointPresenter.destroy();
     this.#pointPresenters.forEach((presenter) => presenter.destroy());
     this.#pointPresenters.clear();
 
