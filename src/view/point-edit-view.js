@@ -4,8 +4,8 @@ import { humanizeDate } from '../utils.js';
 import { DateFormat } from '../const.js';
 import flatpickr from 'flatpickr';
 import { emptyPoint, emptyDestinations, emptyOffers } from '../mock/const-mock.js';
-
 import 'flatpickr/dist/flatpickr.min.css';
+import he from 'he';
 
 const upFirstLetter = (word) => `${word[0].toUpperCase()}${word.slice(1)}`;
 const formatOfferTitle = (title) => title.split(' ').join(' ');
@@ -48,7 +48,7 @@ const createPointEditTemplate = (point, destinations, offers) => {
         <label class="event__label  event__type-output" for="event-destination-${pointId}">
           ${type}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="${name || ''}" list="destination-list-${pointId}">
+        <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="${he.encode(name) || ''}" list="destination-list-${pointId}">
         <datalist id="destination-list-${pointId}">
         ${destinations.map((destination) => `<option value="${destination.name}"></option>`).join('')}
         </datalist>
