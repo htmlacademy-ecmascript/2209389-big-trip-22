@@ -9,6 +9,7 @@ import { generateFilter } from '../model/point-model.js';
 import PointPresenter from './point-presener.js';
 import { updateItem, sortPointsByPrice, sortPointsByTime, sortPointsByDay } from '../utils.js';
 import { SortType, UpdateType, UserAction } from '../const.js';
+import { filter } from '../filter.js';
 
 export default class TripPresenter {
   #sortComponent = null;
@@ -19,21 +20,24 @@ export default class TripPresenter {
   #container = null;
   #pointModel = null;
   #infoTripElement = null;
-  #filterElement = null;
+  //#filterElement = null;
   //#tripPoints = [ ];
   //#offers = null;
   //#destinations = null;
   #pointPresenters = new Map ();
   #currentSortType = SortType.DAY;
   //#sourcedTripPoints = [];
+  #filterModel = null;
 
-  constructor ({ container, pointModel, infoTripElement, filterElement }) {
+  constructor ({ container, pointModel, infoTripElement, /*filterElement*/ filterModel  }) {
     this.#container = container;
     this.#pointModel = pointModel;
     this.#infoTripElement = infoTripElement;
-    this.#filterElement = filterElement;
+    //this.#filterElement = filterElement;
+    this.#filterModel = filterModel;
 
     this.#pointModel.addObserver(this.#handleModelEvent);
+    this.#filterModel.addObserver(this.#handleModelEvent);
   }
 
   init () {
@@ -47,16 +51,19 @@ export default class TripPresenter {
   }
 
   get points() {
+    const filterType = this.#filterModel.filter;
+    const points = this.#pointModel.points;
+    const filteredPoints = filter[filterType](points);
     switch (this.#currentSortType) {
       case SortType.PRICE:
-        return [...this.#pointModel.points.sort(sortPointsByPrice)];
+        return filteredPoints.sort(sortPointsByPrice);
       case SortType.TIME:
-        return [...this.#pointModel.points.sort(sortPointsByTime)];
+        return filteredPoints.sort(sortPointsByTime);
       case SortType.DAY:
-        return [...this.#pointModel.points.sort(sortPointsByDay)];
+        return filteredPoints.sort(sortPointsByDay);
     }
 
-    return this.#pointModel.points;
+    return filteredPoints;
   }
 
   get offers() {
@@ -168,22 +175,22 @@ export default class TripPresenter {
     render(this.#pointsListComponent, this.#container);
   }
 
-  #renderFilter () {
+  // #renderFilter () {
 
-    const points = this.#pointModel.points;
-    const filters = generateFilter(points);
+  //   const points = this.#pointModel.points;
+  //   const filters = generateFilter(points);
 
-    this.#filterComponent = new FilterView({filters});
-    render(this.#filterComponent, this.#filterElement);
+  //   this.#filterComponent = new FilterView({filters});
+  //   render(this.#filterComponent, this.#filterElement);
 
-  }
+  // }
 
   #renderTripEvents() {
 
     this.#renderInfoTrip();
     this.#renderSort();
     this.#renderPointsList();
-    this.#renderFilter();
+    //this.#renderFilter();
     this.#renderOnlyPoints();
 
     this.points.sort(sortPointsByDay);
