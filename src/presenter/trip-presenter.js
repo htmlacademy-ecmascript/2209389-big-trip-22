@@ -8,12 +8,12 @@ import NoPointsView from '../view/no-points-view.js';
 import { generateFilter } from '../model/point-model.js';
 import PointPresenter from './point-presener.js';
 import { updateItem, sortPointsByPrice, sortPointsByTime, sortPointsByDay } from '../utils.js';
-import { SortType, UpdateType, UserAction } from '../const.js';
+import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
 import { filter } from '../filter.js';
 
 export default class TripPresenter {
   #sortComponent = null;
-  #noPointsComponent = new NoPointsView();
+  #noPointsComponent = null;
   #pointsListComponent = new PointsListView();
   #infoTripComponent = new InfoTripView();
   #filterComponent = null;
@@ -28,6 +28,7 @@ export default class TripPresenter {
   #currentSortType = SortType.DAY;
   //#sourcedTripPoints = [];
   #filterModel = null;
+  #filterType = FilterType.EVERYTHING;
 
   constructor ({ container, pointModel, infoTripElement, /*filterElement*/ filterModel  }) {
     this.#container = container;
@@ -51,9 +52,9 @@ export default class TripPresenter {
   }
 
   get points() {
-    const filterType = this.#filterModel.filter;
+    this.#filterType = this.#filterModel.filter;
     const points = this.#pointModel.points;
-    const filteredPoints = filter[filterType](points);
+    const filteredPoints = filter[this.#filterType](points);
     switch (this.#currentSortType) {
       case SortType.PRICE:
         return filteredPoints.sort(sortPointsByPrice);
@@ -164,7 +165,10 @@ export default class TripPresenter {
 
 
   #renderNoPoints () {
-    render (this.#noPointsComponent, this.#container, RenderPosition.AFTERBEGIN);
+    this.#noPointsComponent = new NoPointsView({
+      filterType: this.#filterType
+    });
+    render (this.#noPointsComponent, this.#container, RenderPosition.BEFOREEND);
   }
 
   #renderInfoTrip () {
@@ -213,12 +217,16 @@ export default class TripPresenter {
     this.#pointPresenters.clear();
 
     remove(this.#sortComponent);
-    remove(this.#noPointsComponent);
     remove(this.#filterComponent);
 
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
     }
+
+    if (this.#noPointsComponent) {
+      remove(this.#noPointsComponent);
+    }
+
   }
 
   // #clearPointList() {
