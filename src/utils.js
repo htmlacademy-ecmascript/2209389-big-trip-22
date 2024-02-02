@@ -15,10 +15,6 @@ function calculatePointDuration(dateEnd, dateStart) {
   return totalData;
 }
 
-function updateItem (items, update) {
-  return items.map((item) => item.id === update.id ? update : item);
-}
-
 function sortPointsByPrice (pointA, pointB) {
   return pointB.basePrice - pointA.basePrice;
 }
@@ -33,5 +29,5 @@ function sortPointsByDay (pointA, pointB) {
   return dayjs(pointA.dateFrom) - dayjs(pointB.dateFrom);
 }
 
-export { humanizeDate, calculatePointDuration, updateItem, sortPointsByPrice, sortPointsByTime, sortPointsByDay };
+export { humanizeDate, calculatePointDuration, sortPointsByPrice, sortPointsByTime, sortPointsByDay };
 
