@@ -3,7 +3,7 @@ import { TRIP_POINT_TYPES } from '../const.js';
 import { humanizeDate } from '../utils.js';
 import { DateFormat } from '../const.js';
 import flatpickr from 'flatpickr';
-import { emptyPoint, emptyDestinations, emptyOffers } from '../mock/const-mock.js';
+import { emptyPoint } from '../const.js';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
 
@@ -129,7 +129,7 @@ export default class PointEditView extends AbstractStatefulView {
   #handleDeleteClick = null;
 
 
-  constructor ({point = emptyPoint, destinations = emptyDestinations, offers = emptyOffers, onEditFormSubmit, onRollupButtonClick, onDeleteClick}) {
+  constructor ({point = emptyPoint, destinations = [], offers = [], onEditFormSubmit, onRollupButtonClick, onDeleteClick}) {
     super();
     this._setState(PointEditView.parsePointToState(point));
     this.#destinations = destinations;

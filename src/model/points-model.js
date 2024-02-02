@@ -1,32 +1,30 @@
 import Observable from '../framework/observable.js';
-import { points } from '../mock/points-mock.js';
-import { offers } from '../mock/offers-mock.js';
-import { destinations } from '../mock/destinations-mock.js';
-import { filter } from '../filter.js';
 
 export default class PointsModel extends Observable {
-  #points = null;
-  #destinations = null;
-  #offers = null;
+  #points = [];
+  #destinations = [];
+  #offers = [];
   #pointsApiService = null;
 
   constructor({pointsApiService}) {
 
     super();
     this.#pointsApiService = pointsApiService;
-    this.#pointsApiService.points.then((serverPoints) => {
-      console.log(points.map(this.#adaptToClient));
-    });
-
-    this.#points = [];
-    this.#destinations = [];
-    this.#offers = [];
   }
 
-  init() {
-    this.#points = points;
-    this.#destinations = destinations;
-    this.#offers = offers;
+  async init() {
+    try {
+      const points = await this.#pointsApiService.points; //обращаемся к PAS и получаем список точек
+      this.#points = points.map(this.#adaptToClient); // преобразовываем точки к нужному для нас виду и сохраняем в массиве points
+      this.#destinations = await this.#pointsApiService.destinations;
+      this.#offers = await this.#pointsApiService.destinations;
+
+    } catch(err) {
+
+      this.#points = [];
+      this.#destinations = [];
+      this.#offers = [];
+    }
   }
 
   get points() {

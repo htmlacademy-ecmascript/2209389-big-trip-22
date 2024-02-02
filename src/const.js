@@ -45,8 +45,17 @@ const BaseUrl = {
   OFFERS: 'offers',
 };
 
-const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
-const AUTHORIZATION = 'Basic ewq42aeae2was';
 
-export { TRIP_POINT_TYPES, DateFormat, FilterType, SortType, UserAction, UpdateType, ApiMethod, BaseUrl, END_POINT, AUTHORIZATION };
+const emptyPoint = {
+  basePrice: 0,
+  dateFrom: '',
+  dateTo: '',
+  destination: '',
+  isFavorite: false,
+  offers: [],
+  type: 'Flight',
+};
+
+
+export { TRIP_POINT_TYPES, DateFormat, FilterType, SortType, UserAction, UpdateType, ApiMethod, BaseUrl, emptyPoint };
 
