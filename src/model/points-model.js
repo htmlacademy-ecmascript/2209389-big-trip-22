@@ -4,13 +4,20 @@ import { offers } from '../mock/offers-mock.js';
 import { destinations } from '../mock/destinations-mock.js';
 import { filter } from '../filter.js';
 
-export default class extends Observable {
+export default class PointsModel extends Observable {
   #points = null;
   #destinations = null;
   #offers = null;
+  #pointsApiService = null;
 
-  constructor() {
+  constructor({pointsApiService}) {
+
     super();
+    this.#pointsApiService = pointsApiService;
+    this.#pointsApiService.points.then((serverPoints) => {
+      console.log(serverPoints);
+    });
+
     this.#points = [];
     this.#destinations = [];
     this.#offers = [];
