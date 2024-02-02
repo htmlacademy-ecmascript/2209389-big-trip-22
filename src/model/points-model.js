@@ -1,4 +1,5 @@
 import Observable from '../framework/observable.js';
+import { UpdateType } from '../const.js';
 
 export default class PointsModel extends Observable {
   #points = [];
@@ -25,6 +26,8 @@ export default class PointsModel extends Observable {
       this.#destinations = [];
       this.#offers = [];
     }
+    this._notify(UpdateType.INIT); // уведомляет всех подписчиков о поступлении данных с сервера
+
   }
 
   get points() {
