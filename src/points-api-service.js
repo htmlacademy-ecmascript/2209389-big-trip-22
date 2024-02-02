@@ -25,10 +25,10 @@ export default class PointsApiService extends ApiService {
   async updatePoint(point) {
     //обращаемся к универсальному методу this._load и передаём объект настроек
     const response = await this._load({
-      url: `${BaseUrl.POINTS}/${point.id}`,
-      method: ApiMethod.PUT,
-      body: JSON.stringify(point),
-      headers: new Headers ({'Content-Type': 'aplication/json'}),
+      url: `${BaseUrl.POINTS}/${point.id}`, //адрес ресурса с КОНКРЕТНОЙ задачей
+      method: ApiMethod.PUT, // указывается метод для обновления задачи - PUT
+      body: JSON.stringify(this.#adaptToServer(point)), // 1) переводим объект в вид, с которым умеет работать сервер 2) преобразовываем в JSON формат и передаем на сервер
+      headers: new Headers ({'Content-Type': 'aplication/json'}), // в заголовке сообщаем что сожержимое будет в формате JSON
     });
 
     //далее необходимо выполнить разбор ответа от сервера и вернуть распарсенный вариант
@@ -38,5 +38,23 @@ export default class PointsApiService extends ApiService {
 
   }
 
+  #adaptToServer(point) {
+    const adaptedPoint = {...point,
+      'base_price': point.basePrice,
+      'date_from': point.dateFrom,
+      'date_to': point.dateTo,
+      'is_favorite': point.isFavorite,
+    };
+
+    delete adaptedPoint.basePrice;
+    delete adaptedPoint.dateFrom;
+    delete adaptedPoint.dateTo;
+    delete adaptedPoint.isFavorite;
+
+    return adaptedPoint;
+
+  }
+
 
 }
+

@@ -15,7 +15,7 @@ export default class PointsModel extends Observable {
     super();
     this.#pointsApiService = pointsApiService;
     this.#pointsApiService.points.then((serverPoints) => {
-      console.log(serverPoints);
+      console.log(points.map(this.#adaptToClient));
     });
 
     this.#points = [];
@@ -79,17 +79,22 @@ export default class PointsModel extends Observable {
     this._notify(updateType);
   }
 
+  #adaptToClient(point) {
+    const adaptedPoint = {
+      ...point,
+      basePrice: point['base_price'],
+      dateFrom: point['date_from'],
+      dateTo: point['date_to'],
+      isFavorite: point['is_favorite'],
+    };
 
+    delete adaptedPoint['base_price'];
+    delete adaptedPoint['date_from'];
+    delete adaptedPoint['date_to'];
+    delete adaptedPoint['is_favorite'];
+
+    return adaptedPoint;
+
+
+  }
 }
-
-
-function generateFilter(pointsToFilter) {
-  return Object.entries(filter).map(
-    ([filterType, filterPoints]) => ({
-      type: filterType,
-      count: filterPoints(pointsToFilter).length,
-    }),
-  );
-}
-
-export {generateFilter};

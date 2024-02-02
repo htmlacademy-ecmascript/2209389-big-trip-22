@@ -13,4 +13,14 @@ const filter = {
   [FilterType.PAST]: (points) => points.filter((point) => dayjs(point.dateTo).isBefore(dayjs()))
 };
 
-export { filter };
+function generateFilter(pointsToFilter) {
+  return Object.entries(filter).map(
+    ([filterType, filterPoints]) => ({
+      type: filterType,
+      count: filterPoints(pointsToFilter).length,
+    }),
+  );
+}
+
+export {generateFilter, filter};
+
