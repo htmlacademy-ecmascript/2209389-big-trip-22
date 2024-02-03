@@ -28,7 +28,7 @@ export default class PointsApiService extends ApiService {
       url: `${BaseUrl.POINTS}/${point.id}`, //адрес ресурса с КОНКРЕТНОЙ задачей
       method: ApiMethod.PUT, // указывается метод для обновления задачи - PUT
       body: JSON.stringify(this.#adaptToServer(point)), // 1) переводим объект в вид, с которым умеет работать сервер 2) преобразовываем в JSON формат и передаем на сервер
-      headers: new Headers ({'Content-Type': 'aplication/json'}), // в заголовке сообщаем что сожержимое будет в формате JSON
+      headers: new Headers({ 'Content-Type': 'application/json'}), // в заголовке сообщаем что сожержимое будет в формате JSON
     });
 
     //далее необходимо выполнить разбор ответа от сервера и вернуть распарсенный вариант
@@ -52,9 +52,7 @@ export default class PointsApiService extends ApiService {
     delete adaptedPoint.isFavorite;
 
     return adaptedPoint;
-
   }
-
 
 }
 

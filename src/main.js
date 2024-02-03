@@ -20,7 +20,9 @@ newPointButton.addEventListener('click', newPointButtonClickHandler);
 const pointsModel = new PointsModel({
   pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION)
 });
-pointsModel.init();
+pointsModel.init().finally(() => {
+  newPointFormCloseHandler();
+});
 
 const filterModel = new FilterModel();
 
@@ -50,3 +52,5 @@ function newPointButtonClickHandler() {
 
 filterPresenter.init();
 tripPresenter.init();
+
+export { newPointButton };
