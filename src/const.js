@@ -38,6 +38,8 @@ const UpdateType = {
 const ApiMethod = {
   GET: 'GET',
   PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE'
 };
 
 const BaseUrl = {
@@ -48,13 +50,13 @@ const BaseUrl = {
 
 
 const emptyPoint = {
-  basePrice: 0,
+  basePrice: 111,
   dateFrom: '',
   dateTo: '',
   destination: '',
   isFavorite: false,
   offers: [],
-  type: 'Flight',
+  type: 'flight',
 };
 
 

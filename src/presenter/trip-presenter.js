@@ -39,6 +39,7 @@ export default class TripPresenter {
       pointListContainer: this.#pointsListComponent.element,
       onDataChange: this.#handleViewAction,
       onDestroy: onNewPointDestroy,
+      pointModel,
     });
 
     this.#pointModel.addObserver(this.#handleModelEvent);
@@ -153,7 +154,7 @@ export default class TripPresenter {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#pointsListComponent.element,
       onDataChange: this.#handleViewAction,
-      onModeChange: this.#handleModeChange
+      onModeChange: this.#handleModeChange,
     });
     pointPresenter.init(point, this.#pointModel.destinations, this.#pointModel.offers);
 

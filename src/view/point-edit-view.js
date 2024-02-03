@@ -48,7 +48,7 @@ const createPointEditTemplate = (point, destinations, offers) => {
         <label class="event__label  event__type-output" for="event-destination-${pointId}">
           ${type}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="${he.encode(name) || ''}" list="destination-list-${pointId}">
+        <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="${he.encode(name || '')}" list="destination-list-${pointId}">
         <datalist id="destination-list-${pointId}">
         ${destinations.map((destination) => `<option value="${destination.name}"></option>`).join('')}
         </datalist>
@@ -67,7 +67,7 @@ const createPointEditTemplate = (point, destinations, offers) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-${pointId}" type="text" name="event-price" value=${basePrice}>
+        <input class="event__input  event__input--price" id="event-price-${pointId}" type="text" name="event-price" value=${basePrice} required>
       </div>
 
       <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
@@ -129,7 +129,7 @@ export default class PointEditView extends AbstractStatefulView {
   #handleDeleteClick = null;
 
 
-  constructor ({point = emptyPoint, destinations = [], offers = [], onEditFormSubmit, onRollupButtonClick, onDeleteClick}) {
+  constructor ({point, destinations, offers, onEditFormSubmit, onRollupButtonClick, onDeleteClick}) {
     super();
     this._setState(PointEditView.parsePointToState(point));
     this.#destinations = destinations;
@@ -247,7 +247,11 @@ export default class PointEditView extends AbstractStatefulView {
   };
 
   static parsePointToState(point) {
-    return {...point};
+    return {...point,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
   }
 
   static parseStateToPoint(state) {
