@@ -1699,7 +1699,6 @@ __webpack_require__.r(__webpack_exports__);
 
 
 
-
 const upFirstLetter = word => `${word[0].toUpperCase()}${word.slice(1)}`;
 const formatOfferTitle = title => title.split(' ').join(' ');
 const createPointEditTemplate = (point, destinations, offers) => {
@@ -6002,4 +6001,4 @@ module.exports = styleTagTransform;
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=bundle.9ba69466586f3ce05805.js.map
+//# sourceMappingURL=bundle.10e8ad19263ab390c1af.js.map
