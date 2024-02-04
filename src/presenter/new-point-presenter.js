@@ -56,6 +56,9 @@ export default class NewPointPresenter {
       UpdateType.MINOR,
       point,
     );
+//     Из обработчиков отправки формы нам пришлось удалить методы, которые
+// сбрасывают вид, потому что теперь сброс должен быть только после
+// успешного обновления данных на сервере и модели
     //this.destroy();
   };
 
@@ -75,5 +78,16 @@ export default class NewPointPresenter {
       isDisabled: true,
       isSaving: true,
     });
+  }
+
+  setAborting() {
+    const resetFormState = () => {
+      this.#pointEditComponent.updateElement({
+        isDisabled: false,
+        isSaving: false,
+        isDeleting: false,
+      });
+    };
+    this.#pointEditComponent.shake(resetFormState);
   }
 }

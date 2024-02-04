@@ -50,7 +50,7 @@ const BaseUrl = {
 
 
 const emptyPoint = {
-  basePrice: 111,
+  basePrice: 0,
   dateFrom: '',
   dateTo: '',
   destination: '',
