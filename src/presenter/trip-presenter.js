@@ -8,8 +8,9 @@ import NewPointPresenter from './new-point-presenter.js';
 import { RenderPosition } from '../render.js';
 import { render, remove } from '../framework/render.js';
 import { sortPointsByPrice, sortPointsByTime, sortPointsByDay } from '../utils.js';
-import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
+import { SortType, UpdateType, UserAction, FilterType, TimeLimit } from '../const.js';
 import { filter } from '../filter.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
 export default class TripPresenter {
   #sortComponent = null;
@@ -28,6 +29,10 @@ export default class TripPresenter {
   #filterType = FilterType.EVERYTHING;
   #newPointPresenter = null;
   #isLoading = true;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
 
   constructor ({ container, pointModel, infoTripElement, filterModel, onNewPointDestroy}) {
@@ -90,6 +95,7 @@ export default class TripPresenter {
 
   //сюда попадают данные из дочерних презенторов и мы вызываем модель
   #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
     switch (actionType) {
       case UserAction.ADD_POINT:
         this.#newPointPresenter.setSaving();
@@ -116,6 +122,7 @@ export default class TripPresenter {
         }
         break;
     }
+    this.#uiBlocker.unblock();
   };
 
   //здесь будет запускаться перерисовка
@@ -165,7 +172,7 @@ export default class TripPresenter {
     render(this.#sortComponent, this.#container);
   }
 
-  #renderPoints (point, destinations, offers) {
+  #renderPoints (point) {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#pointsListComponent.element,
       onDataChange: this.#handleViewAction,
