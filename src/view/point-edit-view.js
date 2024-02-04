@@ -10,11 +10,11 @@ import he from 'he';
 const upFirstLetter = (word) => `${word[0].toUpperCase()}${word.slice(1)}`;
 const formatOfferTitle = (title) => title.split(' ').join(' ');
 
-const createPointEditTemplate = (point, destinations, offers, isDeleting, isSaving) => {
+const createPointEditTemplate = (point, destinations, offers) => {
   const pointDestination = destinations.find((dest) => dest.id === point.destination);
   const typeOffers = offers.find((off) => off.type === point.type).offers;
   const pointOffers = typeOffers.filter((typeOffer) => point.offers.includes(typeOffer.id));
-  const {dateFrom, dateTo, basePrice, type} = point;
+  const {dateFrom, dateTo, basePrice, type, isDeleting, isSaving, isDisabled} = point;
   const {name, description, pictures} = pointDestination || {};
   const pointId = point.id || 0;
 
@@ -70,8 +70,8 @@ const createPointEditTemplate = (point, destinations, offers, isDeleting, isSavi
         <input class="event__input  event__input--price" id="event-price-${pointId}" type="text" name="event-price" value=${basePrice} required>
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit">${isSaving ? 'Saving...' : 'Save'}</button>
-      <button class="event__reset-btn" type="reset">${point.id ? `${isDeleting ? 'Deleting...' : 'Delete'}` : 'Cancel'}</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'Disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+      <button class="event__reset-btn" type="reset" ${isDisabled ? 'Disabled' : ''}>${point.id ? `${isDeleting ? 'Deleting...' : 'Delete'}` : 'Cancel'}</button>
       ${point.id ? (
       `<button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>

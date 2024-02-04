@@ -131,7 +131,10 @@ export default class PointPresenter {
       UpdateType.MINOR,
       point,
     );
-    this.#replaceEditFormToPoint();
+    // Из обработчиков отправки формы нам пришлось удалить методы, которые
+    // сбрасывают вид, потому что теперь сброс должен быть только после
+    // успешного обновления данных на сервере и модели
+    //this.#replaceEditFormToPoint();
   };
 
   #handleDeleteClick = (point) => {
