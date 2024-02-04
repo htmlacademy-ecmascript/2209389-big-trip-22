@@ -9,27 +9,27 @@ const emptyPoint = {
   type: '',
 };
 
-const emptyDestinations = [
-  {
-    id: '',
-    description: '',
-    name: '',
-    pictures: [
+// const emptyDestinations = [
+//   {
+//     id: '',
+//     description: '',
+//     name: '',
+//     pictures: [
 
-    ]
-  }
-];
+//     ]
+//   }
+// ];
 
-const emptyOffers = [ {
-  type: '',
-  offers: [
-    {
-      id: '',
-      title: '',
-      price: ''
-    }
-  ]
-}
-];
+// const emptyOffers = [ {
+//   type: '',
+//   offers: [
+//     {
+//       id: '',
+//       title: '',
+//       price: ''
+//     }
+//   ]
+// }
+// ];
 
 export {emptyPoint, emptyDestinations, emptyOffers };

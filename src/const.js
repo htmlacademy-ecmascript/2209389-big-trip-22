@@ -32,7 +32,31 @@ const UpdateType = {
   PATCH: 'PATCH',
   MINOR: 'MINOR',
   MAJOR: 'MAJOR',
+  INIT: 'INIT',
 };
 
-export { TRIP_POINT_TYPES, DateFormat, FilterType, SortType, UserAction, UpdateType };
+const ApiMethod = {
+  GET: 'GET',
+  PUT: 'PUT',
+};
+
+const BaseUrl = {
+  POINTS: 'points',
+  DESTINATIONS: 'destinations',
+  OFFERS: 'offers',
+};
+
+
+const emptyPoint = {
+  basePrice: 0,
+  dateFrom: '',
+  dateTo: '',
+  destination: '',
+  isFavorite: false,
+  offers: [],
+  type: 'Flight',
+};
+
+
+export { TRIP_POINT_TYPES, DateFormat, FilterType, SortType, UserAction, UpdateType, ApiMethod, BaseUrl, emptyPoint };
 
