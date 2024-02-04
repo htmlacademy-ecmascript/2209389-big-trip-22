@@ -3,7 +3,6 @@ import { TRIP_POINT_TYPES } from '../const.js';
 import { humanizeDate } from '../utils.js';
 import { DateFormat } from '../const.js';
 import flatpickr from 'flatpickr';
-import { emptyPoint } from '../const.js';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
 
