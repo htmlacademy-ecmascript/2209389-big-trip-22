@@ -28,7 +28,6 @@ export default class TripPresenter {
   #filterModel = null;
   #filterType = FilterType.EVERYTHING;
   #newPointPresenter = null;
-  #isLoading = true;
   #uiBlocker = new UiBlocker({
     lowerLimit: TimeLimit.LOWER_LIMIT,
     upperLimit: TimeLimit.UPPER_LIMIT
@@ -136,10 +135,9 @@ export default class TripPresenter {
       case UpdateType.MINOR:
         if (this.points.length === 0) {
           this.#renderNoPoints();
-        } else {
-          this.#clearTrip();
-          this.#renderTripEvents();
         }
+        this.#clearTrip();
+        this.#renderTripEvents();
         break;
       case UpdateType.MAJOR:
         this.#clearTrip({resetSortType: true});
@@ -148,7 +146,7 @@ export default class TripPresenter {
       case UpdateType.INIT:
         this.isLoading = false;
         remove(this.#loadingComponent);
-        this.#renderOnlyPoints();
+        this.#renderTripEvents();
         break;
     }
   };
@@ -211,10 +209,10 @@ export default class TripPresenter {
 
   #renderTripEvents() {
 
-    // if (this.#isLoading) {
-    //   this.#renderLoading();
-    //   return;
-    // }
+    if (this.#pointModel.loading) {
+      this.#renderLoading();
+      return;
+    }
 
     this.#renderInfoTrip();
     this.#renderSort();

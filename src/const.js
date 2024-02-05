@@ -1,4 +1,14 @@
-const TRIP_POINT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
+const TRIP_POINT_TYPES = [
+  'taxi',
+  'bus',
+  'train',
+  'ship',
+  'drive',
+  'flight',
+  'check-in',
+  'sightseeing',
+  'restaurant'
+];
 
 const DateFormat = {
   MONTH_DAY: 'MMM D',
@@ -7,7 +17,11 @@ const DateFormat = {
   HOURS: 'HH',
   MINUTES: 'mm',
   YEAR_MONTH_DAY: 'DD/MM/YY HH:mm',
+  MS_IN_MINUTE: 60000,
+  MINUTES_IN_HOUR: 60,
+  MINUTES_IN_DAY: 1440,
 };
+
 
 const FilterType = {
   EVERYTHING: 'everything',

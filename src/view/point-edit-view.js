@@ -58,7 +58,7 @@ const createPointEditTemplate = (point, destinations, offers) => {
         <input class="event__input  event__input--time" id="event-start-time-${pointId}" type="text" name="event-start-time" value="${humanizeDate(dateFrom, DateFormat.YEAR_MONTH_DAY)}" required>
         &mdash;
         <label class="visually-hidden" for="event-end-time-${pointId}">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-${pointId}" type="text" name="event-end-time" value="${humanizeDate(dateTo, DateFormat.YEAR_MONTH_DAY)} "required>
+        <input class="event__input  event__input--time" id="event-end-time-${pointId}" type="text" name="event-end-time" value="${humanizeDate(dateTo, DateFormat.YEAR_MONTH_DAY)}" required>
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -163,8 +163,6 @@ export default class PointEditView extends AbstractStatefulView {
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
-    //TODO новая точка не имеет стрелки 'event__rollup-btn' поэтому обработчик не срабатывает
-    //this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
     this.#initDatePicker();
   }
 
@@ -214,7 +212,6 @@ export default class PointEditView extends AbstractStatefulView {
 
   #changePriceHandler = (evt) => {
     this._setState({ basePrice: Number(evt.target.value, 10) });
-    this.updateElement(this._state);
   };
 
   #initDatePicker = () => {
@@ -231,7 +228,7 @@ export default class PointEditView extends AbstractStatefulView {
       this.element.querySelector('input[name="event-start-time"]'),
       {
         ...commonFlatpickrOptions,
-        defaultDate: this._state.dateFrom,
+        defaultDate: this._state.dateFrom || '',
         onClose: this.#dateFromCloseHandler,
         maxDate: this._state.dateTo,
       }
@@ -242,9 +239,9 @@ export default class PointEditView extends AbstractStatefulView {
       this.element.querySelector('input[name="event-end-time"]'),
       {
         ...commonFlatpickrOptions,
-        defaultDate: this._state.dateTo,
+        defaultDate: this._state.dateTo || '',
         onClose: this.#dateToCloseHandler,
-        minDate: 'today',
+        minDate: this._state.dateFrom,
       }
     );
 

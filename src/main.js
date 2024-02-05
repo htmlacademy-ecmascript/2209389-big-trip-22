@@ -15,7 +15,6 @@ const filterElement = document.querySelector('.trip-controls__filters');
 
 const newPointButton = infoTripElement.querySelector('.trip-main__event-add-btn');
 
-newPointButton.addEventListener('click', newPointButtonClickHandler);
 
 const pointsModel = new PointsModel({
   pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION)
@@ -39,6 +38,8 @@ const tripPresenter = new TripPresenter({
   filterModel: filterModel,
   onNewPointDestroy: newPointFormCloseHandler,
 });
+
+newPointButton.addEventListener('click', newPointButtonClickHandler);
 
 function newPointFormCloseHandler() {
   newPointButton.disabled = false;
