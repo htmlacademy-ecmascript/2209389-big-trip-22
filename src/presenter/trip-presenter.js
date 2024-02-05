@@ -219,6 +219,10 @@ export default class TripPresenter {
     this.#renderPointsList();
     this.#renderOnlyPoints();
 
+    if (this.points.length === 0) {
+      this.#renderNoPoints();
+    }
+
     this.points.sort(sortPointsByDay);
   }
 
@@ -246,6 +250,8 @@ export default class TripPresenter {
 
     if (this.#noPointsComponent) {
       remove(this.#noPointsComponent);
+    } else if (this.points.length === 0) {
+      this.#renderNoPoints();
     }
 
   }
