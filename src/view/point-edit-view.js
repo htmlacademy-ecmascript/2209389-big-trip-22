@@ -3,7 +3,6 @@ import { TRIP_POINT_TYPES } from '../const.js';
 import { humanizeDate } from '../utils.js';
 import { DateFormat } from '../const.js';
 import flatpickr from 'flatpickr';
-import { emptyPoint } from '../const.js';
 import 'flatpickr/dist/flatpickr.min.css';
 import he from 'he';
 
@@ -14,7 +13,7 @@ const createPointEditTemplate = (point, destinations, offers) => {
   const pointDestination = destinations.find((dest) => dest.id === point.destination);
   const typeOffers = offers.find((off) => off.type === point.type).offers;
   const pointOffers = typeOffers.filter((typeOffer) => point.offers.includes(typeOffer.id));
-  const {dateFrom, dateTo, basePrice, type} = point;
+  const {dateFrom, dateTo, basePrice, type, isDeleting, isSaving, isDisabled} = point;
   const {name, description, pictures} = pointDestination || {};
   const pointId = point.id || 0;
 
@@ -48,7 +47,7 @@ const createPointEditTemplate = (point, destinations, offers) => {
         <label class="event__label  event__type-output" for="event-destination-${pointId}">
           ${type}
         </label>
-        <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="${he.encode(name) || ''}" list="destination-list-${pointId}">
+        <input class="event__input  event__input--destination" id="event-destination-${pointId}" type="text" name="event-destination" value="${he.encode(name || '')}" list="destination-list-${pointId}" required>
         <datalist id="destination-list-${pointId}">
         ${destinations.map((destination) => `<option value="${destination.name}"></option>`).join('')}
         </datalist>
@@ -56,10 +55,10 @@ const createPointEditTemplate = (point, destinations, offers) => {
 
       <div class="event__field-group  event__field-group--time">
         <label class="visually-hidden" for="event-start-time-${pointId}">From</label>
-        <input class="event__input  event__input--time" id="event-start-time-${pointId}" type="text" name="event-start-time" value="${humanizeDate(dateFrom, DateFormat.YEAR_MONTH_DAY)}">
+        <input class="event__input  event__input--time" id="event-start-time-${pointId}" type="text" name="event-start-time" value="${humanizeDate(dateFrom, DateFormat.YEAR_MONTH_DAY)}" required>
         &mdash;
         <label class="visually-hidden" for="event-end-time-${pointId}">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-${pointId}" type="text" name="event-end-time" value="${humanizeDate(dateTo, DateFormat.YEAR_MONTH_DAY)}">
+        <input class="event__input  event__input--time" id="event-end-time-${pointId}" type="text" name="event-end-time" value="${humanizeDate(dateTo, DateFormat.YEAR_MONTH_DAY)}" required>
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -67,11 +66,11 @@ const createPointEditTemplate = (point, destinations, offers) => {
           <span class="visually-hidden">Price</span>
           &euro;
         </label>
-        <input class="event__input  event__input--price" id="event-price-${pointId}" type="text" name="event-price" value=${basePrice}>
+        <input class="event__input  event__input--price" id="event-price-${pointId}" type="text" name="event-price" value=${basePrice} required>
       </div>
 
-      <button class="event__save-btn  btn  btn--blue" type="submit">Save</button>
-      <button class="event__reset-btn" type="reset">${point.id ? 'Delete' : 'Cancel'}</button>
+      <button class="event__save-btn  btn  btn--blue" type="submit" ${isDisabled ? 'Disabled' : ''}>${isSaving ? 'Saving...' : 'Save'}</button>
+      <button class="event__reset-btn" type="reset" ${isDisabled ? 'Disabled' : ''}>${point.id ? `${isDeleting ? 'Deleting...' : 'Delete'}` : 'Cancel'}</button>
       ${point.id ? (
       `<button class="event__rollup-btn" type="button">
         <span class="visually-hidden">Open event</span>
@@ -129,7 +128,7 @@ export default class PointEditView extends AbstractStatefulView {
   #handleDeleteClick = null;
 
 
-  constructor ({point = emptyPoint, destinations = [], offers = [], onEditFormSubmit, onRollupButtonClick, onDeleteClick}) {
+  constructor ({point, destinations, offers, onEditFormSubmit, onRollupButtonClick, onDeleteClick}) {
     super();
     this._setState(PointEditView.parsePointToState(point));
     this.#destinations = destinations;
@@ -163,8 +162,7 @@ export default class PointEditView extends AbstractStatefulView {
     });
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
-    //TODO новая точка не имеет стрелки 'event__rollup-btn' поэтому обработчик не срабатывает
-    //this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
     this.#initDatePicker();
   }
 
@@ -212,6 +210,10 @@ export default class PointEditView extends AbstractStatefulView {
     this.#handleDeleteClick(PointEditView.parseStateToPoint(this._state));
   };
 
+  #changePriceHandler = (evt) => {
+    this._setState({ basePrice: Number(evt.target.value, 10) });
+  };
+
   #initDatePicker = () => {
     const militaryTimeFormat = 'time_24hr';
     const commonFlatpickrOptions = {
@@ -226,7 +228,7 @@ export default class PointEditView extends AbstractStatefulView {
       this.element.querySelector('input[name="event-start-time"]'),
       {
         ...commonFlatpickrOptions,
-        defaultDate: this._state.dateFrom,
+        defaultDate: this._state.dateFrom || '',
         onClose: this.#dateFromCloseHandler,
         maxDate: this._state.dateTo,
       }
@@ -237,7 +239,7 @@ export default class PointEditView extends AbstractStatefulView {
       this.element.querySelector('input[name="event-end-time"]'),
       {
         ...commonFlatpickrOptions,
-        defaultDate: this._state.dateTo,
+        defaultDate: this._state.dateTo || '',
         onClose: this.#dateToCloseHandler,
         minDate: this._state.dateFrom,
       }
@@ -247,11 +249,20 @@ export default class PointEditView extends AbstractStatefulView {
   };
 
   static parsePointToState(point) {
-    return {...point};
+    return {...point,
+      isDisabled: false,
+      isSaving: false,
+      isDeleting: false,
+    };
   }
 
   static parseStateToPoint(state) {
     const point = {...state};
+
+    delete point.isDisabled;
+    delete point.isSaving;
+    delete point.isDeleting;
+
     return point;
   }
 

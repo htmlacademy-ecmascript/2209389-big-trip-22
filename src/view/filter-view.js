@@ -1,6 +1,8 @@
+import { FilterType } from '../const.js';
 import AbstractView from '../framework/view/abstract-view.js';
 
-function createFilterItemTemplate (filter, isChecked, currentFilterType) {
+
+function createFilterItemTemplate (filter, currentFilterType = `${FilterType.EVERYTHING}`) {
   const {type, count} = filter;
   return `
                 <div class="trip-filters__filter">
@@ -10,7 +12,7 @@ function createFilterItemTemplate (filter, isChecked, currentFilterType) {
   `;
 }
 
-function createFilterTemplate (filterItems, currentFilterType) {
+function createFilterTemplate (filterItems, currentFilterType = `${FilterType.EVERYTHING}`) {
   const filterItemsTemplate = filterItems
     .map((filter) => createFilterItemTemplate(filter, currentFilterType))
     .join('');

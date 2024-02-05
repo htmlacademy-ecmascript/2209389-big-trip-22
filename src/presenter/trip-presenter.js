@@ -8,8 +8,9 @@ import NewPointPresenter from './new-point-presenter.js';
 import { RenderPosition } from '../render.js';
 import { render, remove } from '../framework/render.js';
 import { sortPointsByPrice, sortPointsByTime, sortPointsByDay } from '../utils.js';
-import { SortType, UpdateType, UserAction, FilterType } from '../const.js';
+import { SortType, UpdateType, UserAction, FilterType, TimeLimit } from '../const.js';
 import { filter } from '../filter.js';
+import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
 
 export default class TripPresenter {
   #sortComponent = null;
@@ -27,7 +28,10 @@ export default class TripPresenter {
   #filterModel = null;
   #filterType = FilterType.EVERYTHING;
   #newPointPresenter = null;
-  #isLoading = true;
+  #uiBlocker = new UiBlocker({
+    lowerLimit: TimeLimit.LOWER_LIMIT,
+    upperLimit: TimeLimit.UPPER_LIMIT
+  });
 
 
   constructor ({ container, pointModel, infoTripElement, filterModel, onNewPointDestroy}) {
@@ -39,6 +43,7 @@ export default class TripPresenter {
       pointListContainer: this.#pointsListComponent.element,
       onDataChange: this.#handleViewAction,
       onDestroy: onNewPointDestroy,
+      pointModel,
     });
 
     this.#pointModel.addObserver(this.#handleModelEvent);
@@ -88,18 +93,36 @@ export default class TripPresenter {
 
 
   //сюда попадают данные из дочерних презенторов и мы вызываем модель
-  #handleViewAction = (actionType, updateType, update) => {
+  #handleViewAction = async (actionType, updateType, update) => {
+    this.#uiBlocker.block();
     switch (actionType) {
       case UserAction.ADD_POINT:
-        this.#pointModel.addPoint(updateType, update);
+        this.#newPointPresenter.setSaving();
+        try {
+          await this.#pointModel.addPoint(updateType, update);
+          this.#newPointPresenter.destroy();
+        } catch(err) {
+          this.#newPointPresenter.setAborting();
+        }
         break;
       case UserAction.UPDATE_POINT:
-        this.#pointModel.updatePoint(updateType, update);
+        this.#pointPresenters.get(update.id).setSaving();
+        try {
+          await this.#pointModel.updatePoint(updateType, update);
+        } catch(err) {
+          this.#pointPresenters.get(update.id).setAborting();
+        }
         break;
       case UserAction.DELETE_POINT:
-        this.#pointModel.deletePoint(updateType, update);
+        this.#pointPresenters.get(update.id).setDeleting();
+        try {
+          this.#pointModel.deletePoint(updateType, update);
+        }catch(err) {
+          this.#pointPresenters.get(update.id).setAborting();
+        }
         break;
     }
+    this.#uiBlocker.unblock();
   };
 
   //здесь будет запускаться перерисовка
@@ -110,6 +133,9 @@ export default class TripPresenter {
         this.#pointPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
+        if (this.points.length === 0) {
+          this.#renderNoPoints();
+        }
         this.#clearTrip();
         this.#renderTripEvents();
         break;
@@ -120,7 +146,7 @@ export default class TripPresenter {
       case UpdateType.INIT:
         this.isLoading = false;
         remove(this.#loadingComponent);
-        this.#renderOnlyPoints();
+        this.#renderTripEvents();
         break;
     }
   };
@@ -149,11 +175,11 @@ export default class TripPresenter {
     render(this.#sortComponent, this.#container);
   }
 
-  #renderPoints (point, destinations, offers) {
+  #renderPoints (point) {
     const pointPresenter = new PointPresenter({
       pointListContainer: this.#pointsListComponent.element,
       onDataChange: this.#handleViewAction,
-      onModeChange: this.#handleModeChange
+      onModeChange: this.#handleModeChange,
     });
     pointPresenter.init(point, this.#pointModel.destinations, this.#pointModel.offers);
 
@@ -183,25 +209,26 @@ export default class TripPresenter {
 
   #renderTripEvents() {
 
-    // if (this.#isLoading) {
-    //   this.#renderLoading();
-    //   return;
-    // }
+    if (this.#pointModel.loading) {
+      this.#renderLoading();
+      return;
+    }
 
     this.#renderInfoTrip();
     this.#renderSort();
     this.#renderPointsList();
     this.#renderOnlyPoints();
 
+    if (this.points.length === 0) {
+      this.#renderNoPoints();
+    }
+
     this.points.sort(sortPointsByDay);
   }
 
   #renderOnlyPoints() {
 
-    if (this.points.length === 0) {
-      this.#renderNoPoints();
-      return;
-    }
+
     this.#renderPointsList();
     for (const point of this.points) {
       this.#renderPoints(point, this.destinations, this.offers);
@@ -223,6 +250,8 @@ export default class TripPresenter {
 
     if (this.#noPointsComponent) {
       remove(this.#noPointsComponent);
+    } else if (this.points.length === 0) {
+      this.#renderNoPoints();
     }
 
   }

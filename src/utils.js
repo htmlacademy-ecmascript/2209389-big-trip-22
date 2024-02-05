@@ -9,11 +9,15 @@ function humanizeDate(date, dateFormat) {
 }
 
 function calculatePointDuration(dateEnd, dateStart) {
-  const totalData = `${humanizeDate((dayjs(dateEnd).diff(dayjs(dateStart))), DateFormat.DAYS)}D
-  ${humanizeDate((dayjs(dateEnd).diff(dayjs(dateStart))), DateFormat.HOURS)}H
-  ${humanizeDate((dayjs(dateEnd).diff(dayjs(dateStart))), DateFormat.MINUTES)}M`;
-  return totalData;
+  const durationInMinutes = dayjs(dateEnd).diff(dayjs(dateStart), DateFormat.MINUTE_DAY_JS);
+
+  const days = Math.floor(durationInMinutes / DateFormat.MINUTES_IN_DAY);
+  const hours = Math.floor((durationInMinutes % DateFormat.MINUTES_IN_DAY) / DateFormat.MINUTES_IN_HOUR);
+  const minutes = durationInMinutes % DateFormat.MINUTES_IN_HOUR;
+
+  return `${days}D ${hours}H ${minutes}M`;
 }
+
 
 function sortPointsByPrice (pointA, pointB) {
   return pointB.basePrice - pointA.basePrice;

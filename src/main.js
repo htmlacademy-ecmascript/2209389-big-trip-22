@@ -5,7 +5,7 @@ import FilterPresenter from './presenter/filter-presenter.js';
 import PointsApiService from './points-api-service.js';
 
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
-const AUTHORIZATION = 'Basic ewq42aeae2was';
+const AUTHORIZATION = 'Basic ewq42aeae2wa';
 
 const siteMainElement = document.querySelector('.page-main');
 const siteHeaderElement = siteMainElement.querySelector('.trip-events');
@@ -15,7 +15,6 @@ const filterElement = document.querySelector('.trip-controls__filters');
 
 const newPointButton = infoTripElement.querySelector('.trip-main__event-add-btn');
 
-newPointButton.addEventListener('click', newPointButtonClickHandler);
 
 const pointsModel = new PointsModel({
   pointsApiService: new PointsApiService(END_POINT, AUTHORIZATION)
@@ -39,6 +38,8 @@ const tripPresenter = new TripPresenter({
   filterModel: filterModel,
   onNewPointDestroy: newPointFormCloseHandler,
 });
+
+newPointButton.addEventListener('click', newPointButtonClickHandler);
 
 function newPointFormCloseHandler() {
   newPointButton.disabled = false;

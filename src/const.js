@@ -1,4 +1,14 @@
-const TRIP_POINT_TYPES = ['taxi', 'bus', 'train', 'ship', 'drive', 'flight', 'check-in', 'sightseeing', 'restaurant'];
+const TRIP_POINT_TYPES = [
+  'taxi',
+  'bus',
+  'train',
+  'ship',
+  'drive',
+  'flight',
+  'check-in',
+  'sightseeing',
+  'restaurant'
+];
 
 const DateFormat = {
   MONTH_DAY: 'MMM D',
@@ -6,8 +16,13 @@ const DateFormat = {
   DAYS: 'DD',
   HOURS: 'HH',
   MINUTES: 'mm',
+  MINUTE_DAY_JS: 'minute',
   YEAR_MONTH_DAY: 'DD/MM/YY HH:mm',
+  MS_IN_MINUTE: 60000,
+  MINUTES_IN_HOUR: 60,
+  MINUTES_IN_DAY: 1440,
 };
+
 
 const FilterType = {
   EVERYTHING: 'everything',
@@ -38,6 +53,8 @@ const UpdateType = {
 const ApiMethod = {
   GET: 'GET',
   PUT: 'PUT',
+  POST: 'POST',
+  DELETE: 'DELETE'
 };
 
 const BaseUrl = {
@@ -54,9 +71,13 @@ const emptyPoint = {
   destination: '',
   isFavorite: false,
   offers: [],
-  type: 'Flight',
+  type: 'flight',
 };
 
+const TimeLimit = {
+  LOWER_LIMIT: 350,
+  UPPER_LIMIT: 1000,
+};
 
-export { TRIP_POINT_TYPES, DateFormat, FilterType, SortType, UserAction, UpdateType, ApiMethod, BaseUrl, emptyPoint };
+export { TRIP_POINT_TYPES, DateFormat, FilterType, SortType, UserAction, UpdateType, ApiMethod, BaseUrl, emptyPoint, TimeLimit };
 
