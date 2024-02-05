@@ -28,7 +28,11 @@ const DateFormat = {
   DAYS: 'DD',
   HOURS: 'HH',
   MINUTES: 'mm',
-  YEAR_MONTH_DAY: 'DD/MM/YY HH:mm'
+  MINUTE_DAY_JS: 'minute',
+  YEAR_MONTH_DAY: 'DD/MM/YY HH:mm',
+  MS_IN_MINUTE: 60000,
+  MINUTES_IN_HOUR: 60,
+  MINUTES_IN_DAY: 1440
 };
 const FilterType = {
   EVERYTHING: 'everything',
@@ -611,7 +615,6 @@ const siteHeaderElement = siteMainElement.querySelector('.trip-events');
 const infoTripElement = document.querySelector('.trip-main');
 const filterElement = document.querySelector('.trip-controls__filters');
 const newPointButton = infoTripElement.querySelector('.trip-main__event-add-btn');
-newPointButton.addEventListener('click', newPointButtonClickHandler);
 const pointsModel = new _model_points_model_js__WEBPACK_IMPORTED_MODULE_0__["default"]({
   pointsApiService: new _points_api_service_js__WEBPACK_IMPORTED_MODULE_4__["default"](END_POINT, AUTHORIZATION)
 });
@@ -631,6 +634,7 @@ const tripPresenter = new _presenter_trip_presenter_js__WEBPACK_IMPORTED_MODULE_
   filterModel: filterModel,
   onNewPointDestroy: newPointFormCloseHandler
 });
+newPointButton.addEventListener('click', newPointButtonClickHandler);
 function newPointFormCloseHandler() {
   newPointButton.disabled = false;
 }
@@ -694,6 +698,7 @@ class PointsModel extends _framework_observable_js__WEBPACK_IMPORTED_MODULE_0__[
   #destinations = [];
   #offers = [];
   #pointsApiService = null;
+  #isLoading = true;
   constructor({
     pointsApiService
   }) {
@@ -708,10 +713,12 @@ class PointsModel extends _framework_observable_js__WEBPACK_IMPORTED_MODULE_0__[
       this.#points = points.map(this.#adaptToClient); // преобразовываем точки к нужному для нас виду и сохраняем в массиве points
       this.#destinations = await this.#pointsApiService.destinations;
       this.#offers = await this.#pointsApiService.offers;
+      this.#isLoading = false;
     } catch (err) {
       this.#points = [];
       this.#destinations = [];
       this.#offers = [];
+      this.#isLoading = false;
     }
     this._notify(_const_js__WEBPACK_IMPORTED_MODULE_1__.UpdateType.INIT); // уведомляет всех подписчиков о поступлении данных с сервера
   }
@@ -723,6 +730,9 @@ class PointsModel extends _framework_observable_js__WEBPACK_IMPORTED_MODULE_0__[
   }
   get offers() {
     return this.#offers;
+  }
+  get loading() {
+    return this.#isLoading;
   }
   async updatePoint(updateType, update) {
     const index = this.#points.findIndex(point => point.id === update.id);
@@ -994,10 +1004,6 @@ class NewPointPresenter {
   }
   #handleFormSubmit = point => {
     this.#handleDataChange(_const_js__WEBPACK_IMPORTED_MODULE_2__.UserAction.ADD_POINT, _const_js__WEBPACK_IMPORTED_MODULE_2__.UpdateType.MINOR, point);
-    //     Из обработчиков отправки формы нам пришлось удалить методы, которые
-    // сбрасывают вид, потому что теперь сброс должен быть только после
-    // успешного обновления данных на сервере и модели
-    //this.destroy();
   };
   #handleDeleteClick = () => {
     this.destroy();
@@ -1148,10 +1154,6 @@ class PointPresenter {
   };
   #handleFormSubmit = point => {
     this.#handleDataChange(_const_js__WEBPACK_IMPORTED_MODULE_3__.UserAction.UPDATE_POINT, _const_js__WEBPACK_IMPORTED_MODULE_3__.UpdateType.MINOR, point);
-    // Из обработчиков отправки формы нам пришлось удалить методы, которые
-    // сбрасывают вид, потому что теперь сброс должен быть только после
-    // успешного обновления данных на сервере и модели
-    //this.#replaceEditFormToPoint();
   };
   #handleDeleteClick = point => {
     this.#handleDataChange(_const_js__WEBPACK_IMPORTED_MODULE_3__.UserAction.DELETE_POINT, _const_js__WEBPACK_IMPORTED_MODULE_3__.UpdateType.MINOR, point);
@@ -1242,7 +1244,6 @@ class TripPresenter {
   #filterModel = null;
   #filterType = _const_js__WEBPACK_IMPORTED_MODULE_10__.FilterType.EVERYTHING;
   #newPointPresenter = null;
-  #isLoading = true;
   #uiBlocker = new _framework_ui_blocker_ui_blocker_js__WEBPACK_IMPORTED_MODULE_12__["default"]({
     lowerLimit: _const_js__WEBPACK_IMPORTED_MODULE_10__.TimeLimit.LOWER_LIMIT,
     upperLimit: _const_js__WEBPACK_IMPORTED_MODULE_10__.TimeLimit.UPPER_LIMIT
@@ -1343,10 +1344,9 @@ class TripPresenter {
       case _const_js__WEBPACK_IMPORTED_MODULE_10__.UpdateType.MINOR:
         if (this.points.length === 0) {
           this.#renderNoPoints();
-        } else {
-          this.#clearTrip();
-          this.#renderTripEvents();
         }
+        this.#clearTrip();
+        this.#renderTripEvents();
         break;
       case _const_js__WEBPACK_IMPORTED_MODULE_10__.UpdateType.MAJOR:
         this.#clearTrip({
@@ -1357,7 +1357,7 @@ class TripPresenter {
       case _const_js__WEBPACK_IMPORTED_MODULE_10__.UpdateType.INIT:
         this.isLoading = false;
         (0,_framework_render_js__WEBPACK_IMPORTED_MODULE_8__.remove)(this.#loadingComponent);
-        this.#renderOnlyPoints();
+        this.#renderTripEvents();
         break;
     }
   };
@@ -1401,11 +1401,10 @@ class TripPresenter {
     (0,_framework_render_js__WEBPACK_IMPORTED_MODULE_8__.render)(this.#loadingComponent, this.#container, _render_js__WEBPACK_IMPORTED_MODULE_7__.RenderPosition.AFTERBEGIN);
   }
   #renderTripEvents() {
-    // if (this.#isLoading) {
-    //   this.#renderLoading();
-    //   return;
-    // }
-
+    if (this.#pointModel.loading) {
+      this.#renderLoading();
+      return;
+    }
     this.#renderInfoTrip();
     this.#renderSort();
     this.#renderPointsList();
@@ -1496,19 +1495,11 @@ dayjs__WEBPACK_IMPORTED_MODULE_0___default().extend((dayjs_plugin_utc_js__WEBPAC
 function humanizeDate(date, dateFormat) {
   return date ? dayjs__WEBPACK_IMPORTED_MODULE_0___default().utc(date).format(dateFormat) : '';
 }
-
-// function calculatePointDuration(dateEnd, dateStart) {
-//   const totalData = `${humanizeDate((dayjs(dateEnd).diff(dayjs(dateStart))), DateFormat.DAYS)}D
-//   ${humanizeDate((dayjs(dateEnd).diff(dayjs(dateStart))), DateFormat.HOURS)}H
-//   ${humanizeDate((dayjs(dateEnd).diff(dayjs(dateStart))), DateFormat.MINUTES)}M`;
-//   return totalData;
-// }
 function calculatePointDuration(dateEnd, dateStart) {
-  const duration = dayjs__WEBPACK_IMPORTED_MODULE_0___default()(dateEnd).diff(dayjs__WEBPACK_IMPORTED_MODULE_0___default()(dateStart));
-  const durationInMinutes = Math.floor(duration / (1000 * 60));
-  const days = Math.floor(durationInMinutes / (24 * 60));
-  const hours = Math.floor(durationInMinutes % (24 * 60) / 60);
-  const minutes = durationInMinutes % 60;
+  const durationInMinutes = dayjs__WEBPACK_IMPORTED_MODULE_0___default()(dateEnd).diff(dayjs__WEBPACK_IMPORTED_MODULE_0___default()(dateStart), _const_js__WEBPACK_IMPORTED_MODULE_2__.DateFormat.MINUTE_DAY_JS);
+  const days = Math.floor(durationInMinutes / _const_js__WEBPACK_IMPORTED_MODULE_2__.DateFormat.MINUTES_IN_DAY);
+  const hours = Math.floor(durationInMinutes % _const_js__WEBPACK_IMPORTED_MODULE_2__.DateFormat.MINUTES_IN_DAY / _const_js__WEBPACK_IMPORTED_MODULE_2__.DateFormat.MINUTES_IN_HOUR);
+  const minutes = durationInMinutes % _const_js__WEBPACK_IMPORTED_MODULE_2__.DateFormat.MINUTES_IN_HOUR;
   return `${days}D ${hours}H ${minutes}M`;
 }
 function sortPointsByPrice(pointA, pointB) {
@@ -1770,7 +1761,7 @@ const createPointEditTemplate = (point, destinations, offers) => {
         <input class="event__input  event__input--time" id="event-start-time-${pointId}" type="text" name="event-start-time" value="${(0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.humanizeDate)(dateFrom, _const_js__WEBPACK_IMPORTED_MODULE_1__.DateFormat.YEAR_MONTH_DAY)}" required>
         &mdash;
         <label class="visually-hidden" for="event-end-time-${pointId}">To</label>
-        <input class="event__input  event__input--time" id="event-end-time-${pointId}" type="text" name="event-end-time" value="${(0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.humanizeDate)(dateTo, _const_js__WEBPACK_IMPORTED_MODULE_1__.DateFormat.YEAR_MONTH_DAY)} "required>
+        <input class="event__input  event__input--time" id="event-end-time-${pointId}" type="text" name="event-end-time" value="${(0,_utils_js__WEBPACK_IMPORTED_MODULE_2__.humanizeDate)(dateTo, _const_js__WEBPACK_IMPORTED_MODULE_1__.DateFormat.YEAR_MONTH_DAY)}" required>
       </div>
 
       <div class="event__field-group  event__field-group--price">
@@ -1860,8 +1851,6 @@ class PointEditView extends _framework_view_abstract_stateful_view_js__WEBPACK_I
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
     this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
-    //TODO новая точка не имеет стрелки 'event__rollup-btn' поэтому обработчик не срабатывает
-    //this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
     this.#initDatePicker();
   }
   #formSubmitHandler = evt => {
@@ -1911,7 +1900,6 @@ class PointEditView extends _framework_view_abstract_stateful_view_js__WEBPACK_I
     this._setState({
       basePrice: Number(evt.target.value, 10)
     });
-    this.updateElement(this._state);
   };
   #initDatePicker = () => {
     const militaryTimeFormat = 'time_24hr';
@@ -1925,15 +1913,15 @@ class PointEditView extends _framework_view_abstract_stateful_view_js__WEBPACK_I
     };
     this.#dateFromPicker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__["default"])(this.element.querySelector('input[name="event-start-time"]'), {
       ...commonFlatpickrOptions,
-      defaultDate: this._state.dateFrom,
+      defaultDate: this._state.dateFrom || '',
       onClose: this.#dateFromCloseHandler,
       maxDate: this._state.dateTo
     });
     this.#dateToPicker = (0,flatpickr__WEBPACK_IMPORTED_MODULE_3__["default"])(this.element.querySelector('input[name="event-end-time"]'), {
       ...commonFlatpickrOptions,
-      defaultDate: this._state.dateTo,
+      defaultDate: this._state.dateTo || '',
       onClose: this.#dateToCloseHandler,
-      minDate: 'today'
+      minDate: this._state.dateFrom
     });
   };
   static parsePointToState(point) {
@@ -6020,4 +6008,4 @@ module.exports = styleTagTransform;
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=bundle.a0d95bbc6d10541cce65.js.map
+//# sourceMappingURL=bundle.b48e8bfe5ec98d8dae25.js.map
