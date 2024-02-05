@@ -9,7 +9,7 @@ function humanizeDate(date, dateFormat) {
 }
 
 function calculatePointDuration(dateEnd, dateStart) {
-  const durationInMinutes = dayjs(dateEnd).diff(dayjs(dateStart), 'minute');
+  const durationInMinutes = dayjs(dateEnd).diff(dayjs(dateStart), DateFormat.MINUTE_DAY_JS);
 
   const days = Math.floor(durationInMinutes / DateFormat.MINUTES_IN_DAY);
   const hours = Math.floor((durationInMinutes % DateFormat.MINUTES_IN_DAY) / DateFormat.MINUTES_IN_HOUR);

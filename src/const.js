@@ -16,6 +16,7 @@ const DateFormat = {
   DAYS: 'DD',
   HOURS: 'HH',
   MINUTES: 'mm',
+  MINUTE_DAY_JS: 'minute',
   YEAR_MONTH_DAY: 'DD/MM/YY HH:mm',
   MS_IN_MINUTE: 60000,
   MINUTES_IN_HOUR: 60,
