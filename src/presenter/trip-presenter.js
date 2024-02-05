@@ -101,6 +101,7 @@ export default class TripPresenter {
         this.#newPointPresenter.setSaving();
         try {
           await this.#pointModel.addPoint(updateType, update);
+          this.#newPointPresenter.destroy();
         } catch(err) {
           this.#newPointPresenter.setAborting();
         }
@@ -133,8 +134,12 @@ export default class TripPresenter {
         this.#pointPresenters.get(data.id).init(data);
         break;
       case UpdateType.MINOR:
-        this.#clearTrip();
-        this.#renderTripEvents();
+        if (this.points.length === 0) {
+          this.#renderNoPoints();
+        } else {
+          this.#clearTrip();
+          this.#renderTripEvents();
+        }
         break;
       case UpdateType.MAJOR:
         this.#clearTrip({resetSortType: true});
@@ -221,10 +226,7 @@ export default class TripPresenter {
 
   #renderOnlyPoints() {
 
-    if (this.points.length === 0) {
-      this.#renderNoPoints();
-      return;
-    }
+
     this.#renderPointsList();
     for (const point of this.points) {
       this.#renderPoints(point, this.destinations, this.offers);

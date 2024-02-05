@@ -162,6 +162,7 @@ export default class PointEditView extends AbstractStatefulView {
     });
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
     //TODO новая точка не имеет стрелки 'event__rollup-btn' поэтому обработчик не срабатывает
     //this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
     this.#initDatePicker();
@@ -211,6 +212,11 @@ export default class PointEditView extends AbstractStatefulView {
     this.#handleDeleteClick(PointEditView.parseStateToPoint(this._state));
   };
 
+  #changePriceHandler = (evt) => {
+    this._setState({ basePrice: Number(evt.target.value, 10) });
+    this.updateElement(this._state);
+  };
+
   #initDatePicker = () => {
     const militaryTimeFormat = 'time_24hr';
     const commonFlatpickrOptions = {
@@ -238,7 +244,7 @@ export default class PointEditView extends AbstractStatefulView {
         ...commonFlatpickrOptions,
         defaultDate: this._state.dateTo,
         onClose: this.#dateToCloseHandler,
-        minDate: this._state.dateFrom,
+        minDate: 'today',
       }
     );
 
