@@ -605,7 +605,7 @@ __webpack_require__.r(__webpack_exports__);
 
 
 const END_POINT = 'https://22.objects.htmlacademy.pro/big-trip';
-const AUTHORIZATION = 'Basic ewq42aeae2was';
+const AUTHORIZATION = 'Basic ewq42aeae2wa';
 const siteMainElement = document.querySelector('.page-main');
 const siteHeaderElement = siteMainElement.querySelector('.trip-events');
 const infoTripElement = document.querySelector('.trip-main');
@@ -1308,6 +1308,7 @@ class TripPresenter {
         this.#newPointPresenter.setSaving();
         try {
           await this.#pointModel.addPoint(updateType, update);
+          this.#newPointPresenter.destroy();
         } catch (err) {
           this.#newPointPresenter.setAborting();
         }
@@ -1340,8 +1341,12 @@ class TripPresenter {
         this.#pointPresenters.get(data.id).init(data);
         break;
       case _const_js__WEBPACK_IMPORTED_MODULE_10__.UpdateType.MINOR:
-        this.#clearTrip();
-        this.#renderTripEvents();
+        if (this.points.length === 0) {
+          this.#renderNoPoints();
+        } else {
+          this.#clearTrip();
+          this.#renderTripEvents();
+        }
         break;
       case _const_js__WEBPACK_IMPORTED_MODULE_10__.UpdateType.MAJOR:
         this.#clearTrip({
@@ -1408,10 +1413,6 @@ class TripPresenter {
     this.points.sort(_utils_js__WEBPACK_IMPORTED_MODULE_9__.sortPointsByDay);
   }
   #renderOnlyPoints() {
-    if (this.points.length === 0) {
-      this.#renderNoPoints();
-      return;
-    }
     this.#renderPointsList();
     for (const point of this.points) {
       this.#renderPoints(point, this.destinations, this.offers);
@@ -1495,11 +1496,20 @@ dayjs__WEBPACK_IMPORTED_MODULE_0___default().extend((dayjs_plugin_utc_js__WEBPAC
 function humanizeDate(date, dateFormat) {
   return date ? dayjs__WEBPACK_IMPORTED_MODULE_0___default().utc(date).format(dateFormat) : '';
 }
+
+// function calculatePointDuration(dateEnd, dateStart) {
+//   const totalData = `${humanizeDate((dayjs(dateEnd).diff(dayjs(dateStart))), DateFormat.DAYS)}D
+//   ${humanizeDate((dayjs(dateEnd).diff(dayjs(dateStart))), DateFormat.HOURS)}H
+//   ${humanizeDate((dayjs(dateEnd).diff(dayjs(dateStart))), DateFormat.MINUTES)}M`;
+//   return totalData;
+// }
 function calculatePointDuration(dateEnd, dateStart) {
-  const totalData = `${humanizeDate(dayjs__WEBPACK_IMPORTED_MODULE_0___default()(dateEnd).diff(dayjs__WEBPACK_IMPORTED_MODULE_0___default()(dateStart)), _const_js__WEBPACK_IMPORTED_MODULE_2__.DateFormat.DAYS)}D
-  ${humanizeDate(dayjs__WEBPACK_IMPORTED_MODULE_0___default()(dateEnd).diff(dayjs__WEBPACK_IMPORTED_MODULE_0___default()(dateStart)), _const_js__WEBPACK_IMPORTED_MODULE_2__.DateFormat.HOURS)}H
-  ${humanizeDate(dayjs__WEBPACK_IMPORTED_MODULE_0___default()(dateEnd).diff(dayjs__WEBPACK_IMPORTED_MODULE_0___default()(dateStart)), _const_js__WEBPACK_IMPORTED_MODULE_2__.DateFormat.MINUTES)}M`;
-  return totalData;
+  const duration = dayjs__WEBPACK_IMPORTED_MODULE_0___default()(dateEnd).diff(dayjs__WEBPACK_IMPORTED_MODULE_0___default()(dateStart));
+  const durationInMinutes = Math.floor(duration / (1000 * 60));
+  const days = Math.floor(durationInMinutes / (24 * 60));
+  const hours = Math.floor(durationInMinutes % (24 * 60) / 60);
+  const minutes = durationInMinutes % 60;
+  return `${days}D ${hours}H ${minutes}M`;
 }
 function sortPointsByPrice(pointA, pointB) {
   return pointB.basePrice - pointA.basePrice;
@@ -1527,9 +1537,11 @@ __webpack_require__.r(__webpack_exports__);
 /* harmony export */ __webpack_require__.d(__webpack_exports__, {
 /* harmony export */   "default": () => (/* binding */ FilterView)
 /* harmony export */ });
-/* harmony import */ var _framework_view_abstract_view_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../framework/view/abstract-view.js */ "./src/framework/view/abstract-view.js");
+/* harmony import */ var _const_js__WEBPACK_IMPORTED_MODULE_0__ = __webpack_require__(/*! ../const.js */ "./src/const.js");
+/* harmony import */ var _framework_view_abstract_view_js__WEBPACK_IMPORTED_MODULE_1__ = __webpack_require__(/*! ../framework/view/abstract-view.js */ "./src/framework/view/abstract-view.js");
 
-function createFilterItemTemplate(filter, isChecked, currentFilterType) {
+
+function createFilterItemTemplate(filter, currentFilterType = `${_const_js__WEBPACK_IMPORTED_MODULE_0__.FilterType.EVERYTHING}`) {
   const {
     type,
     count
@@ -1541,7 +1553,7 @@ function createFilterItemTemplate(filter, isChecked, currentFilterType) {
                 </div>
   `;
 }
-function createFilterTemplate(filterItems, currentFilterType) {
+function createFilterTemplate(filterItems, currentFilterType = `${_const_js__WEBPACK_IMPORTED_MODULE_0__.FilterType.EVERYTHING}`) {
   const filterItemsTemplate = filterItems.map(filter => createFilterItemTemplate(filter, currentFilterType)).join('');
   return `
     <form class="trip-filters" action="#" method="get">
@@ -1550,7 +1562,7 @@ function createFilterTemplate(filterItems, currentFilterType) {
     </form>
   `;
 }
-class FilterView extends _framework_view_abstract_view_js__WEBPACK_IMPORTED_MODULE_0__["default"] {
+class FilterView extends _framework_view_abstract_view_js__WEBPACK_IMPORTED_MODULE_1__["default"] {
   #filters = null;
   #currentFilter = null;
   #handleFilterTypeChange = null;
@@ -1847,6 +1859,7 @@ class PointEditView extends _framework_view_abstract_stateful_view_js__WEBPACK_I
     });
     this.element.querySelector('.event__input--destination').addEventListener('change', this.#changeDestinationHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#changePriceHandler);
     //TODO новая точка не имеет стрелки 'event__rollup-btn' поэтому обработчик не срабатывает
     //this.element.querySelector('.event__rollup-btn').addEventListener('click', this.#editClickHandler);
     this.#initDatePicker();
@@ -1894,6 +1907,12 @@ class PointEditView extends _framework_view_abstract_stateful_view_js__WEBPACK_I
     evt.preventDefault();
     this.#handleDeleteClick(PointEditView.parseStateToPoint(this._state));
   };
+  #changePriceHandler = evt => {
+    this._setState({
+      basePrice: Number(evt.target.value, 10)
+    });
+    this.updateElement(this._state);
+  };
   #initDatePicker = () => {
     const militaryTimeFormat = 'time_24hr';
     const commonFlatpickrOptions = {
@@ -1914,7 +1933,7 @@ class PointEditView extends _framework_view_abstract_stateful_view_js__WEBPACK_I
       ...commonFlatpickrOptions,
       defaultDate: this._state.dateTo,
       onClose: this.#dateToCloseHandler,
-      minDate: this._state.dateFrom
+      minDate: 'today'
     });
   };
   static parsePointToState(point) {
@@ -6001,4 +6020,4 @@ module.exports = styleTagTransform;
 /******/ 	
 /******/ })()
 ;
-//# sourceMappingURL=bundle.10e8ad19263ab390c1af.js.map
+//# sourceMappingURL=bundle.a0d95bbc6d10541cce65.js.map
