@@ -3,6 +3,7 @@ import SortView from '../view/sort-view.js';
 import InfoTripView from '../view/info-trip-view.js';
 import NoPointsView from '../view/no-points-view.js';
 import LoadingView from '../view/loading-view.js';
+import FailedToLoadView from '../view/failed-to-load-view.js';
 import PointPresenter from './point-presener.js';
 import NewPointPresenter from './new-point-presenter.js';
 import { RenderPosition } from '../render.js';
@@ -19,6 +20,7 @@ export default class TripPresenter {
   #infoTripComponent = new InfoTripView();
   #loadingComponent = new LoadingView();
   #filterComponent = null;
+  #failedToLoadComponent = new FailedToLoadView();
 
   #container = null;
   #pointModel = null;
@@ -144,9 +146,13 @@ export default class TripPresenter {
         this.#renderTripEvents();
         break;
       case UpdateType.INIT:
-        this.isLoading = false;
-        remove(this.#loadingComponent);
-        this.#renderTripEvents();
+        try {
+          this.isLoading = false;
+          remove(this.#loadingComponent);
+          this.#renderTripEvents();
+        } catch (err) {
+          this.#renderFailedToLoadComponent();
+        }
         break;
     }
   };
@@ -206,11 +212,20 @@ export default class TripPresenter {
     render(this.#loadingComponent, this.#container, RenderPosition.AFTERBEGIN);
   }
 
+  #renderFailedToLoadComponent() {
+    render(this.#failedToLoadComponent, this.#container, RenderPosition.AFTERBEGIN);
+  }
+
 
   #renderTripEvents() {
 
     if (this.#pointModel.loading) {
       this.#renderLoading();
+      return;
+    }
+
+    if (this.#pointModel.loadingFailed) {
+      this.#renderFailedToLoadComponent();
       return;
     }
 
@@ -248,9 +263,10 @@ export default class TripPresenter {
       this.#currentSortType = SortType.DAY;
     }
 
-    if (this.#noPointsComponent) {
+    if (this.#noPointsComponent || this.#failedToLoadComponent) {
       remove(this.#noPointsComponent);
-    } else if (this.points.length === 0) {
+      remove(this.#failedToLoadComponent);
+    } else if (this.points.length === 0 && !this.#pointModel.loadingFailed) {
       this.#renderNoPoints();
     }
 
