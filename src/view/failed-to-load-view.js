@@ -6,7 +6,7 @@ function createLoadingTemplate () {
   );
 }
 
-export default class LoadingView extends AbstractView {
+export default class FailedToLoadView extends AbstractView {
   get template() {
     return createLoadingTemplate();
   }

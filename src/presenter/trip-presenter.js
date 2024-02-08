@@ -12,6 +12,8 @@ import { sortPointsByPrice, sortPointsByTime, sortPointsByDay } from '../utils.j
 import { SortType, UpdateType, UserAction, FilterType, TimeLimit } from '../const.js';
 import { filter } from '../filter.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+import { newPointButton } from '../main.js';
+import { activateNewPointButton } from '../main.js';
 
 export default class TripPresenter {
   #sortComponent = null;
@@ -152,6 +154,7 @@ export default class TripPresenter {
           this.#renderTripEvents();
         } catch (err) {
           this.#renderFailedToLoadComponent();
+          newPointButton.disabled = true;
         }
         break;
     }
@@ -233,6 +236,8 @@ export default class TripPresenter {
     this.#renderSort();
     this.#renderPointsList();
     this.#renderOnlyPoints();
+
+    activateNewPointButton();
 
     if (this.points.length === 0) {
       this.#renderNoPoints();
