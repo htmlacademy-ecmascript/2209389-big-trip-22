@@ -8,6 +8,7 @@ export default class PointsModel extends Observable {
   #offers = [];
   #pointsApiService = null;
   #isLoading = true;
+  #isLoadingFailed = false;
 
   constructor({pointsApiService}) {
 
@@ -24,6 +25,7 @@ export default class PointsModel extends Observable {
       this.#destinations = await this.#pointsApiService.destinations;
       this.#offers = await this.#pointsApiService.offers;
       this.#isLoading = false;
+      this.#isLoadingFailed = false;
 
 
     } catch(err) {
@@ -33,6 +35,8 @@ export default class PointsModel extends Observable {
       this.#offers = [];
 
       this.#isLoading = false;
+      this.#isLoadingFailed = true;
+
     }
     this._notify(UpdateType.INIT); // уведомляет всех подписчиков о поступлении данных с сервера
 
@@ -52,6 +56,10 @@ export default class PointsModel extends Observable {
 
   get loading() {
     return this.#isLoading;
+  }
+
+  get loadingFailed() {
+    return this.#isLoadingFailed;
   }
 
   async updatePoint (updateType, update) {

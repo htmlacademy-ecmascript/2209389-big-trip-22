@@ -3,6 +3,7 @@ import SortView from '../view/sort-view.js';
 import InfoTripView from '../view/info-trip-view.js';
 import NoPointsView from '../view/no-points-view.js';
 import LoadingView from '../view/loading-view.js';
+import FailedToLoadView from '../view/failed-to-load-view.js';
 import PointPresenter from './point-presener.js';
 import NewPointPresenter from './new-point-presenter.js';
 import { RenderPosition } from '../render.js';
@@ -11,6 +12,8 @@ import { sortPointsByPrice, sortPointsByTime, sortPointsByDay } from '../utils.j
 import { SortType, UpdateType, UserAction, FilterType, TimeLimit } from '../const.js';
 import { filter } from '../filter.js';
 import UiBlocker from '../framework/ui-blocker/ui-blocker.js';
+import { newPointButton } from '../main.js';
+import { activateNewPointButton } from '../main.js';
 
 export default class TripPresenter {
   #sortComponent = null;
@@ -19,6 +22,7 @@ export default class TripPresenter {
   #infoTripComponent = new InfoTripView();
   #loadingComponent = new LoadingView();
   #filterComponent = null;
+  #failedToLoadComponent = new FailedToLoadView();
 
   #container = null;
   #pointModel = null;
@@ -144,9 +148,14 @@ export default class TripPresenter {
         this.#renderTripEvents();
         break;
       case UpdateType.INIT:
-        this.isLoading = false;
-        remove(this.#loadingComponent);
-        this.#renderTripEvents();
+        try {
+          this.isLoading = false;
+          remove(this.#loadingComponent);
+          this.#renderTripEvents();
+        } catch (err) {
+          this.#renderFailedToLoadComponent();
+          newPointButton.disabled = true;
+        }
         break;
     }
   };
@@ -206,6 +215,10 @@ export default class TripPresenter {
     render(this.#loadingComponent, this.#container, RenderPosition.AFTERBEGIN);
   }
 
+  #renderFailedToLoadComponent() {
+    render(this.#failedToLoadComponent, this.#container, RenderPosition.AFTERBEGIN);
+  }
+
 
   #renderTripEvents() {
 
@@ -214,10 +227,17 @@ export default class TripPresenter {
       return;
     }
 
+    if (this.#pointModel.loadingFailed) {
+      this.#renderFailedToLoadComponent();
+      return;
+    }
+
     this.#renderInfoTrip();
     this.#renderSort();
     this.#renderPointsList();
     this.#renderOnlyPoints();
+
+    activateNewPointButton();
 
     if (this.points.length === 0) {
       this.#renderNoPoints();
@@ -248,9 +268,10 @@ export default class TripPresenter {
       this.#currentSortType = SortType.DAY;
     }
 
-    if (this.#noPointsComponent) {
+    if (this.#noPointsComponent || this.#failedToLoadComponent) {
       remove(this.#noPointsComponent);
-    } else if (this.points.length === 0) {
+      remove(this.#failedToLoadComponent);
+    } else if (this.points.length === 0 && !this.#pointModel.loadingFailed) {
       this.#renderNoPoints();
     }
 
