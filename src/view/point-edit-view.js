@@ -98,7 +98,7 @@ const createPointEditTemplate = (point, destinations, offers) => {
       </section>`
       : ''}
 
-      ${pointDestination.length ?
+      ${pointDestination ?
       `<section class="event__section  event__section--destination">
         <h3 class="event__section-title  event__section-title--destination">Destination</h3>
         <p class="event__destination-description">${description}</p>
@@ -158,11 +158,11 @@ export default class PointEditView extends AbstractStatefulView {
     this.element.querySelector('form').addEventListener('submit', this.#formSubmitHandler);
 
     this.element.querySelectorAll('.event__type-input').forEach((typeRadioButton) => {
-      typeRadioButton.addEventListener('change', this.#eventTypeInputHandler);
+      typeRadioButton.addEventListener('change', this.#eventTypeChangeHandler);
     });
-    this.element.querySelector('.event__input--destination').addEventListener('change', this.#destinationInputFieldHandler);
+    this.element.querySelector('.event__input--destination').addEventListener('change', this.#pointDestinationChangeHandler);
     this.element.querySelector('.event__reset-btn').addEventListener('click', this.#formDeleteClickHandler);
-    this.element.querySelector('.event__input--price').addEventListener('change', this.#pointPriceInputHandler);
+    this.element.querySelector('.event__input--price').addEventListener('change', this.#pointPriceChangeHandler);
     this.#initDatePicker();
   }
 
@@ -176,13 +176,13 @@ export default class PointEditView extends AbstractStatefulView {
     this.#handleEditClick();
   };
 
-  #eventTypeInputHandler = (evt) => {
+  #eventTypeChangeHandler = (evt) => {
     evt.preventDefault();
     this._setState({type: evt.target.value,});
     this.updateElement(this._state);
   };
 
-  #destinationInputFieldHandler = (evt) => {
+  #pointDestinationChangeHandler = (evt) => {
     evt.preventDefault();
     const newDestination = this.#destinations.find((dest) => dest.name === evt.target.value);
     if (newDestination) {
@@ -210,7 +210,7 @@ export default class PointEditView extends AbstractStatefulView {
     this.#handleDeleteClick(PointEditView.parseStateToPoint(this._state));
   };
 
-  #pointPriceInputHandler = (evt) => {
+  #pointPriceChangeHandler = (evt) => {
     this._setState({ basePrice: Number(evt.target.value, 10) });
   };
 
