@@ -280,6 +280,7 @@ export default class TripPresenter {
     remove(this.#filterComponent);
     remove(this.#loadingComponent);
     remove(this.#totalPriceComponent);
+    remove(this.#infoTripComponent);
 
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
