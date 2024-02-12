@@ -12,6 +12,7 @@ const TRIP_POINT_TYPES = [
 
 const DateFormat = {
   MONTH_DAY: 'MMM D',
+  DAY_MONTH: 'D MMM',
   HOURS_MINUTES: 'HH:mm',
   DAYS: 'DD',
   HOURS: 'HH',

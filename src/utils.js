@@ -8,6 +8,18 @@ function humanizeDate(date, dateFormat) {
   return date ? dayjs.utc(date).format(dateFormat) : '';
 }
 
+
+const getMinData = (items) => {
+  const minDate = items.reduce((min, item) => dayjs(item.dateFrom).isBefore(min) ? dayjs(item.dateFrom) : min, dayjs());
+  return humanizeDate(minDate, DateFormat.DAY_MONTH);
+};
+
+const getMaxData = (items) => {
+  const maxDate = items.reduce((max, item) => dayjs(item.dateTo).isAfter(max) ? dayjs(item.dateTo) : max, dayjs('1970-01-01'));
+  return humanizeDate(maxDate, DateFormat.DAY_MONTH);
+};
+
+
 function calculatePointDuration(dateEnd, dateStart) {
   const durationInMinutes = dayjs(dateEnd).diff(dayjs(dateStart), DateFormat.MINUTE_DAY_JS);
 
@@ -16,6 +28,16 @@ function calculatePointDuration(dateEnd, dateStart) {
   const minutes = durationInMinutes % DateFormat.MINUTES_IN_HOUR;
 
   return `${days}D ${hours}H ${minutes}M`;
+}
+
+function calculateTotalPrice () {
+
+  const nodeList = document.querySelectorAll('.event__price-value');
+  const resultString = [];
+  nodeList.forEach((node) => resultString.push(node.innerText));
+  const parsedResult = resultString.map((string) => parseInt(string, 10));
+  const summurize = parsedResult.reduce((accumulator, currentValue) => accumulator + currentValue);
+  return summurize;
 }
 
 
@@ -33,5 +55,5 @@ function sortPointsByDay (pointA, pointB) {
   return dayjs(pointA.dateFrom) - dayjs(pointB.dateFrom);
 }
 
-export { humanizeDate, calculatePointDuration, sortPointsByPrice, sortPointsByTime, sortPointsByDay };
+export { humanizeDate, calculatePointDuration, sortPointsByPrice, sortPointsByTime, sortPointsByDay, calculateTotalPrice, getMaxData, getMinData };
 

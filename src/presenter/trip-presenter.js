@@ -4,6 +4,7 @@ import InfoTripView from '../view/info-trip-view.js';
 import NoPointsView from '../view/no-points-view.js';
 import LoadingView from '../view/loading-view.js';
 import FailedToLoadView from '../view/failed-to-load-view.js';
+import TotalPriceView from '../view/total-price-view.js';
 import PointPresenter from './point-presener.js';
 import NewPointPresenter from './new-point-presenter.js';
 import { RenderPosition } from '../render.js';
@@ -18,8 +19,11 @@ import { activateNewPointButton } from '../main.js';
 export default class TripPresenter {
   #sortComponent = null;
   #noPointsComponent = null;
+
+  #totalPriceComponent = null;
+
   #pointsListComponent = new PointsListView();
-  #infoTripComponent = new InfoTripView();
+  #infoTripComponent = null;
   #loadingComponent = new LoadingView();
   #filterComponent = null;
   #failedToLoadComponent = new FailedToLoadView();
@@ -82,6 +86,7 @@ export default class TripPresenter {
   get destinations() {
     return this.#pointModel.destinations;
   }
+
 
   createPoint() {
     this.#currentSortType = SortType.DAY;
@@ -203,7 +208,15 @@ export default class TripPresenter {
     render (this.#noPointsComponent, this.#container, RenderPosition.AFTEREND);
   }
 
+  #renderTotalPrice () {
+    this.#totalPriceComponent = new TotalPriceView();
+    render (this.#totalPriceComponent, this.#infoTripElement, RenderPosition.AFTEREND);
+  }
+
   #renderInfoTrip () {
+    this.#infoTripComponent = new InfoTripView({
+      points: [...this.points.sort(sortPointsByDay)],
+      destinations: this.destinations});
     render(this.#infoTripComponent, this.#infoTripElement, RenderPosition.AFTERBEGIN);
   }
 
@@ -236,6 +249,7 @@ export default class TripPresenter {
     this.#renderSort();
     this.#renderPointsList();
     this.#renderOnlyPoints();
+    this.#renderTotalPrice();
 
     activateNewPointButton();
 
@@ -244,7 +258,9 @@ export default class TripPresenter {
     }
 
     this.points.sort(sortPointsByDay);
+
   }
+
 
   #renderOnlyPoints() {
 
@@ -263,6 +279,7 @@ export default class TripPresenter {
     remove(this.#sortComponent);
     remove(this.#filterComponent);
     remove(this.#loadingComponent);
+    remove(this.#totalPriceComponent);
 
     if (resetSortType) {
       this.#currentSortType = SortType.DAY;
